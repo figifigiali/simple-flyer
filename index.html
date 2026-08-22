@@ -4,28 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Simple Flyer</title>
-
 <style>
 *{box-sizing:border-box}
-
-html,body{
-margin:0;
-width:100%;
-height:100%;
-overflow:hidden;
-touch-action:none
-}
-
-body{
-background:#75c9ee;
-font-family:Arial
-}
-
-canvas{
-display:block;
-width:100%;
-height:100%
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;touch-action:none}
+body{background:#75c9ee;font-family:Arial}
+canvas{display:block;width:100%;height:100%}
 
 #message{
 position:fixed;
@@ -117,8 +100,10 @@ let score=0;
 let playing=false;
 let lastTime=0;
 let pipeTimer=0;
-
 let speedLevel=3;
+
+
+/* HASTIGHED */
 
 const speedValues={
 1:130,
@@ -127,6 +112,18 @@ const speedValues={
 4:235,
 5:270
 };
+
+
+/* MELLEMRUM MELLEM STOLPER */
+
+const gapValues={
+1:260,
+2:240,
+3:220,
+4:200,
+5:180
+};
+
 
 function resize(){
 
@@ -142,6 +139,8 @@ window.addEventListener("resize",resize);
 
 resize();
 
+
+/* VÆLG HASTIGHED */
 
 function selectSpeed(level){
 
@@ -175,6 +174,8 @@ Number(button.dataset.speed)
 });
 
 
+/* START SPIL */
+
 function startGame(){
 
 bird={
@@ -194,10 +195,13 @@ playing=true;
 message.style.display="none";
 
 speedBox.style.display="none";
+
 speedLabel.style.display="none";
 
 }
 
+
+/* HOP */
 
 function flap(){
 
@@ -207,10 +211,14 @@ startGame();
 
 }
 
-bird.velocity=-420;
+/* LIDT HØJERE HOP */
+
+bird.velocity=-450;
 
 }
 
+
+/* TOUCH */
 
 window.addEventListener("pointerdown",function(e){
 
@@ -242,6 +250,8 @@ flap();
 },{passive:false});
 
 
+/* COMPUTER */
+
 window.addEventListener("keydown",function(e){
 
 if(e.code==="Space"){
@@ -255,15 +265,21 @@ flap();
 });
 
 
+/* LAV STOLPE */
+
 function addPipe(){
 
-const gap=160;
+const gap=gapValues[speedLevel];
 
-const min=80;
+const min=70;
 
-const max=H-80-gap;
+const max=H-70-gap;
 
-const top=min+Math.random()*(max-min);
+const top=
+min+
+Math.random()*
+Math.max(1,max-min);
+
 
 pipes.push({
 
@@ -282,6 +298,8 @@ passed:false
 }
 
 
+/* GAME OVER */
+
 function endGame(){
 
 playing=false;
@@ -292,10 +310,13 @@ message.innerHTML=
 message.style.display="flex";
 
 speedBox.style.display="flex";
+
 speedLabel.style.display="block";
 
 }
 
+
+/* OPDATER SPIL */
 
 function update(dt){
 
@@ -305,6 +326,8 @@ return;
 
 }
 
+
+/* TYNGDEKRAFT */
 
 bird.velocity+=1100*dt;
 
@@ -323,7 +346,10 @@ addPipe();
 }
 
 
-const pipeSpeed=speedValues[speedLevel];
+/* VALGT HASTIGHED */
+
+const pipeSpeed=
+speedValues[speedLevel];
 
 
 for(let p of pipes){
@@ -331,7 +357,12 @@ for(let p of pipes){
 p.x-=pipeSpeed*dt;
 
 
-if(!p.passed && p.x+p.width<bird.x){
+/* SCORE */
+
+if(
+!p.passed &&
+p.x+p.width<bird.x
+){
 
 p.passed=true;
 
@@ -339,6 +370,8 @@ score++;
 
 }
 
+
+/* KOLLISION */
 
 if(
 
@@ -363,10 +396,15 @@ endGame();
 }
 
 
-pipes=pipes.filter(
+/* FJERN GAMLE STOLPER */
+
+pipes=
+pipes.filter(
 p=>p.x+p.width>0
 );
 
+
+/* RAMMER TOP/BUND */
 
 if(
 
@@ -383,25 +421,48 @@ endGame();
 }
 
 
+/* TEGN SPIL */
+
 function draw(){
 
-let sky=ctx.createLinearGradient(
-0,0,0,H
+/* HIMMEL */
+
+let sky=
+ctx.createLinearGradient(
+0,
+0,
+0,
+H
 );
 
-sky.addColorStop(0,"#70c8ee");
+sky.addColorStop(
+0,
+"#70c8ee"
+);
 
-sky.addColorStop(1,"#e5f8ff");
+sky.addColorStop(
+1,
+"#e5f8ff"
+);
 
 ctx.fillStyle=sky;
 
-ctx.fillRect(0,0,W,H);
+ctx.fillRect(
+0,
+0,
+W,
+H
+);
 
+
+/* STOLPER */
 
 for(let p of pipes){
 
 ctx.fillStyle="#45a844";
 
+
+/* ØVERSTE */
 
 ctx.fillRect(
 p.x,
@@ -410,6 +471,8 @@ p.width,
 p.top
 );
 
+
+/* NEDERSTE */
 
 ctx.fillRect(
 p.x,
@@ -421,6 +484,8 @@ H-(p.top+p.gap)-35
 }
 
 
+/* JORD */
+
 ctx.fillStyle="#65b34a";
 
 ctx.fillRect(
@@ -430,6 +495,8 @@ W,
 35
 );
 
+
+/* GUL FIGUR */
 
 ctx.fillStyle="#ffd23f";
 
@@ -446,6 +513,8 @@ Math.PI*2
 ctx.fill();
 
 
+/* ØJE */
+
 ctx.fillStyle="#222";
 
 ctx.beginPath();
@@ -461,9 +530,12 @@ Math.PI*2
 ctx.fill();
 
 
+/* SCORE */
+
 ctx.fillStyle="white";
 
-ctx.font="bold 34px Arial";
+ctx.font=
+"bold 34px Arial";
 
 ctx.textAlign="center";
 
@@ -476,15 +548,20 @@ W/2,
 }
 
 
+/* GAME LOOP */
+
 function loop(time){
 
-let dt=(time-lastTime)/1000;
+let dt=
+(time-lastTime)/1000;
+
 
 if(dt>0.035){
 
 dt=0.035;
 
 }
+
 
 lastTime=time;
 
@@ -496,6 +573,8 @@ requestAnimationFrame(loop);
 
 }
 
+
+/* START */
 
 bird={
 x:W*.23,
