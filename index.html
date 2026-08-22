@@ -314,6 +314,8 @@ pipeCount++;
 /*
 BOLD PÅ HVER ANDEN STOLPE
 KUN PÅ NIVEAU 4 OG 5
+
+Bolden placeres midt i åbningen.
 */
 
 if(
@@ -325,7 +327,7 @@ balls.push({
 
 pipe:pipe,
 
-x:pipe.x+pipe.width/2,
+x:pipe.x+pipe.width+(pipe.gap/2),
 
 y:-20,
 
@@ -404,6 +406,8 @@ score++;
 }
 
 
+/* KOLLISION MED STOLPE */
+
 if(
 
 bird.x+17>p.x &&
@@ -432,11 +436,14 @@ endGame();
 for(let ball of balls){
 
 /*
-Bolden følger den stolpe,
-den blev skabt sammen med.
+Bolden følger midten af åbningen
+mellem de to grønne stolper.
 */
 
-ball.x=ball.pipe.x+ball.pipe.width/2;
+ball.x=
+ball.pipe.x+
+ball.pipe.width+
+(ball.pipe.gap/2);
 
 
 /*
@@ -449,7 +456,7 @@ speedLevel===5 ? 370 : 320;
 ball.y+=fallSpeed*dt;
 
 
-/* KOLLISION */
+/* KOLLISION MELLEM FUGL OG BOLD */
 
 const dx=bird.x-ball.x;
 const dy=bird.y-ball.y;
@@ -459,7 +466,8 @@ dx*dx+dy*dy
 );
 
 if(
-distance<bird.r+ball.radius
+distance<
+17+ball.radius
 ){
 
 endGame();
@@ -536,6 +544,8 @@ for(let p of pipes){
 ctx.fillStyle="#45a844";
 
 
+/* ØVERSTE STOLPE */
+
 ctx.fillRect(
 p.x,
 0,
@@ -543,6 +553,8 @@ p.width,
 p.top
 );
 
+
+/* NEDERSTE STOLPE */
 
 ctx.fillRect(
 p.x,
@@ -587,7 +599,7 @@ W,
 );
 
 
-/* FUGL */
+/* GUL FIGUR */
 
 ctx.fillStyle="#ffd23f";
 
