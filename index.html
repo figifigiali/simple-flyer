@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Simple Flyer</title>
+<title>Crazy Flyer</title>
 
 <style>
 *{box-sizing:border-box}
@@ -17,8 +17,8 @@ touch-action:none
 }
 
 body{
-background:#75c9ee;
-font-family:Arial
+background:#39a9e8;
+font-family:Arial,sans-serif
 }
 
 canvas{
@@ -37,7 +37,7 @@ color:white;
 font-size:26px;
 font-weight:bold;
 text-align:center;
-text-shadow:0 2px 5px #555;
+text-shadow:0 3px 5px #555;
 pointer-events:none
 }
 
@@ -65,7 +65,7 @@ text-shadow:0 1px 3px #555
 
 .speedBtn.selected{
 background:white;
-color:#333;
+color:#222;
 text-shadow:none
 }
 
@@ -112,14 +112,13 @@ const buttons=document.querySelectorAll(".speedBtn");
 
 let W,H;
 let bird;
+
 let pipes=[];
-let balls=[];
 
 let score=0;
 let playing=false;
 let lastTime=0;
 let pipeTimer=0;
-let pipeCount=0;
 
 let speedLevel=3;
 
@@ -132,6 +131,17 @@ const speedValues={
 3:200,
 4:235,
 5:270
+};
+
+
+/* MELLEMRUM MELLEM STOLPER */
+
+const gapValues={
+1:260,
+2:240,
+3:220,
+4:200,
+5:180
 };
 
 
@@ -149,6 +159,8 @@ window.addEventListener("resize",resize);
 
 resize();
 
+
+/* VÆLG HASTIGHED */
 
 function selectSpeed(level){
 
@@ -182,6 +194,8 @@ Number(button.dataset.speed)
 });
 
 
+/* START */
+
 function startGame(){
 
 bird={
@@ -191,12 +205,10 @@ velocity:0
 };
 
 pipes=[];
-balls=[];
 
 score=0;
 
 pipeTimer=0;
-pipeCount=0;
 
 playing=true;
 
@@ -207,6 +219,8 @@ speedLabel.style.display="none";
 
 }
 
+
+/* HOP */
 
 function flap(){
 
@@ -220,6 +234,8 @@ bird.velocity=-450;
 
 }
 
+
+/* TOUCH */
 
 window.addEventListener("pointerdown",function(e){
 
@@ -251,6 +267,8 @@ flap();
 },{passive:false});
 
 
+/* TASTATUR */
+
 window.addEventListener("keydown",function(e){
 
 if(e.code==="Space"){
@@ -264,34 +282,19 @@ flap();
 });
 
 
-/*
-MELLEMRUM MELLEM STOLPERNE
-
-1 = 260
-2 = 240
-3 = 220
-4 = 200
-5 = 180
-*/
+/* NY STOLPE */
 
 function addPipe(){
-
-const gapValues={
-1:260,
-2:240,
-3:220,
-4:200,
-5:180
-};
 
 const gap=gapValues[speedLevel];
 
 const min=70;
+
 const max=H-70-gap;
 
 const top=min+Math.random()*(max-min);
 
-const pipe={
+pipes.push({
 
 x:W+20,
 
@@ -303,39 +306,12 @@ gap:gap,
 
 passed:false
 
-};
-
-pipes.push(pipe);
-
-pipeCount++;
-
-
-/*
-BOLD PÅ HVER ANDEN STOLPE
-KUN PÅ NIVEAU 4 OG 5
-*/
-
-if(
-(speedLevel===4 || speedLevel===5) &&
-pipeCount%2===0
-){
-
-balls.push({
-
-pipe:pipe,
-
-x:pipe.x+pipe.width+(pipe.gap/2),
-
-y:-20,
-
-radius:14
-
 });
 
 }
 
-}
 
+/* GAME OVER */
 
 function endGame(){
 
@@ -352,6 +328,8 @@ speedLabel.style.display="block";
 }
 
 
+/* OPDATERING */
+
 function update(dt){
 
 if(!playing){
@@ -361,14 +339,14 @@ return;
 }
 
 
-/* FUGLEN */
+/* FUGL */
 
 bird.velocity+=1100*dt;
 
 bird.y+=bird.velocity*dt;
 
 
-/* NY STOLPE */
+/* AFSTAND MELLEM STOLPER */
 
 pipeTimer+=dt;
 
@@ -405,6 +383,8 @@ for(let p of pipes){
 p.x-=pipeSpeed*dt;
 
 
+/* SCORE */
+
 if(
 !p.passed &&
 p.x+p.width<bird.x
@@ -417,7 +397,7 @@ score++;
 }
 
 
-/* KOLLISION MED STOLPE */
+/* KOLLISION */
 
 if(
 
@@ -442,61 +422,10 @@ endGame();
 }
 
 
-/* BOLDE */
-
-for(let ball of balls){
-
-/*
-Bolden følger midten af åbningen
-mellem de grønne stolper.
-*/
-
-ball.x=
-ball.pipe.x+
-ball.pipe.width+
-(ball.pipe.gap/2);
-
-
-/* BOLDENS FALDHASTIGHED */
-
-const fallSpeed=
-speedLevel===5 ? 370 : 320;
-
-ball.y+=fallSpeed*dt;
-
-
-/* KOLLISION MED BOLD */
-
-const dx=bird.x-ball.x;
-const dy=bird.y-ball.y;
-
-const distance=Math.sqrt(
-dx*dx+dy*dy
-);
-
-if(
-distance<
-17+ball.radius
-){
-
-endGame();
-
-}
-
-}
-
-
 /* FJERN GAMLE STOLPER */
 
 pipes=pipes.filter(
 p=>p.x+p.width>0
-);
-
-
-/* FJERN BOLDE */
-
-balls=balls.filter(
-ball=>ball.y-ball.radius<H
 );
 
 
@@ -517,9 +446,345 @@ endGame();
 }
 
 
-/* =================================
-   TEGNING AF SPILLET
-   ================================= */
+/* AFRUNDET REKTANGEL */
+
+function roundedRect(x,y,w,h,r){
+
+ctx.beginPath();
+
+ctx.roundRect(
+x,
+y,
+w,
+h,
+r
+);
+
+}
+
+
+/* SKYER */
+
+function drawCloud(x,y,size){
+
+ctx.fillStyle="rgba(255,255,255,.75)";
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+size*.55,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+x+size*.55,
+y-size*.15,
+size*.7,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+x+size*1.15,
+y,
+size*.5,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+/* BY */
+
+function drawCity(){
+
+ctx.fillStyle="rgba(80,170,210,.30)";
+
+const buildings=[
+
+[0,.86,.07,.14],
+[.07,.82,.09,.18],
+[.16,.88,.06,.12],
+[.22,.80,.10,.20],
+[.32,.85,.07,.15],
+[.39,.78,.09,.22],
+[.48,.86,.06,.14],
+[.54,.81,.10,.19],
+[.64,.86,.07,.14],
+[.71,.79,.09,.21],
+[.80,.84,.07,.16],
+[.87,.76,.10,.24],
+[.97,.84,.06,.16]
+
+];
+
+for(let b of buildings){
+
+ctx.fillRect(
+b[0]*W,
+b[1]*H,
+b[2]*W,
+b[3]*H
+);
+
+}
+
+}
+
+
+/* BUSKE */
+
+function drawBushes(){
+
+ctx.fillStyle="#48b84f";
+
+for(let x=0;x<W;x+=35){
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+H-38,
+28,
+Math.PI,
+0
+);
+
+ctx.fill();
+
+}
+
+}
+
+
+/* STOLPER */
+
+function drawPipe(p){
+
+const capHeight=20;
+const capExtra=8;
+
+ctx.fillStyle="#45a844";
+
+
+/* ØVERSTE */
+
+ctx.fillRect(
+p.x,
+0,
+p.width,
+p.top
+);
+
+
+/* ØVERSTE AFRUNDEDE HÆTTE */
+
+roundedRect(
+p.x-capExtra,
+p.top-capHeight,
+p.width+capExtra*2,
+capHeight,
+10
+);
+
+ctx.fill();
+
+
+/* NEDERSTE */
+
+ctx.fillRect(
+p.x,
+p.top+p.gap,
+p.width,
+H-(p.top+p.gap)-45
+);
+
+
+/* NEDERSTE AFRUNDEDE HÆTTE */
+
+roundedRect(
+p.x-capExtra,
+p.top+p.gap,
+p.width+capExtra*2,
+capHeight,
+10
+);
+
+ctx.fill();
+
+}
+
+
+/* CRAZY EMOJI */
+
+function drawBird(){
+
+const x=bird.x;
+const y=bird.y;
+const r=17;
+
+
+/* Krop */
+
+ctx.fillStyle="#ffd21f";
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+r,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* VENSTRE ØJE */
+
+ctx.fillStyle="white";
+
+ctx.beginPath();
+
+ctx.arc(
+x-6,
+y-5,
+6,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* HØJRE ØJE */
+
+ctx.beginPath();
+
+ctx.arc(
+x+6,
+y-3,
+6,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* PUPILLER */
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.arc(
+x-5,
+y-5,
+2.7,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.beginPath();
+
+ctx.arc(
+x+7,
+y-2,
+2.7,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* CRAZY MUND */
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x+1,
+y+7,
+8,
+5,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* TUNGE */
+
+ctx.fillStyle="#f04455";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x+2,
+y+11,
+4,
+6,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* ØJENBRYN */
+
+ctx.strokeStyle="#111";
+
+ctx.lineWidth=2.5;
+
+ctx.beginPath();
+
+ctx.moveTo(
+x-12,
+y-13
+);
+
+ctx.lineTo(
+x-5,
+y-15
+);
+
+ctx.stroke();
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+x+4,
+y-14
+);
+
+ctx.lineTo(
+x+12,
+y-10
+);
+
+ctx.stroke();
+
+}
+
+
+/* TEGN ALT */
 
 function draw(){
 
@@ -535,12 +800,17 @@ H
 
 sky.addColorStop(
 0,
-"#70c8ee"
+"#31a9e8"
+);
+
+sky.addColorStop(
+0.65,
+"#74d0f2"
 );
 
 sky.addColorStop(
 1,
-"#e5f8ff"
+"#d8f5ff"
 );
 
 ctx.fillStyle=sky;
@@ -553,97 +823,47 @@ H
 );
 
 
-/* =================================
-   GRØNNE STOLPER
-   MED AFRUNDEDE HÆTTER
-   ================================= */
+/* SKYER */
+
+drawCloud(
+W*.08,
+H*.27,
+45
+);
+
+drawCloud(
+W*.78,
+H*.34,
+55
+);
+
+drawCloud(
+W*.42,
+H*.70,
+70
+);
+
+
+/* BY */
+
+drawCity();
+
+
+/* STOLPER */
 
 for(let p of pipes){
 
-const capHeight=20;
-const capExtra=8;
-
-ctx.fillStyle="#45a844";
-
-
-/* ØVERSTE STOLPE */
-
-ctx.fillRect(
-p.x,
-0,
-p.width,
-p.top
-);
-
-
-/* AFRUNDET HÆTTE PÅ ØVERSTE STOLPE */
-
-ctx.beginPath();
-
-ctx.roundRect(
-p.x-capExtra,
-p.top-capHeight,
-p.width+(capExtra*2),
-capHeight,
-10
-);
-
-ctx.fill();
-
-
-/* NEDERSTE STOLPE */
-
-ctx.fillRect(
-p.x,
-p.top+p.gap,
-p.width,
-H-(p.top+p.gap)-35
-);
-
-
-/* AFRUNDET HÆTTE PÅ NEDERSTE STOLPE */
-
-ctx.beginPath();
-
-ctx.roundRect(
-p.x-capExtra,
-p.top+p.gap,
-p.width+(capExtra*2),
-capHeight,
-10
-);
-
-ctx.fill();
+drawPipe(p);
 
 }
 
 
-/* =================================
-   BOLDE
-   ================================= */
+/* BUSKE */
 
-for(let ball of balls){
-
-ctx.fillStyle="#e53935";
-
-ctx.beginPath();
-
-ctx.arc(
-ball.x,
-ball.y,
-ball.radius,
-0,
-Math.PI*2
-);
-
-ctx.fill();
-
-}
+drawBushes();
 
 
-/* =================================
-   JORD
-   ================================= */
+/* JORD */
 
 ctx.fillStyle="#65b34a";
 
@@ -655,45 +875,24 @@ W,
 );
 
 
-/* =================================
-   GUL FUGL
-   ================================= */
+/* MØRK GRÆSKANT */
 
-ctx.fillStyle="#ffd23f";
+ctx.fillStyle="#3d963c";
 
-ctx.beginPath();
-
-ctx.arc(
-bird.x,
-bird.y,
-17,
+ctx.fillRect(
 0,
-Math.PI*2
+H-38,
+W,
+4
 );
 
-ctx.fill();
+
+/* EMOJI */
+
+drawBird();
 
 
-/* ØJE */
-
-ctx.fillStyle="#222";
-
-ctx.beginPath();
-
-ctx.arc(
-bird.x+6,
-bird.y-6,
-3,
-0,
-Math.PI*2
-);
-
-ctx.fill();
-
-
-/* =================================
-   SCORE
-   ================================= */
+/* SCORE */
 
 ctx.fillStyle="white";
 
@@ -701,18 +900,23 @@ ctx.font="bold 34px Arial";
 
 ctx.textAlign="center";
 
+ctx.shadowColor="rgba(0,0,0,.35)";
+ctx.shadowBlur=4;
+ctx.shadowOffsetY=2;
+
 ctx.fillText(
 score,
 W/2,
 55
 );
 
+ctx.shadowBlur=0;
+ctx.shadowOffsetY=0;
+
 }
 
 
-/* =================================
-   GAME LOOP
-   ================================= */
+/* GAME LOOP */
 
 function loop(time){
 
