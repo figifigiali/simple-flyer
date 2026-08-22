@@ -287,7 +287,6 @@ const gapValues={
 const gap=gapValues[speedLevel];
 
 const min=70;
-
 const max=H-70-gap;
 
 const top=min+Math.random()*(max-min);
@@ -449,7 +448,7 @@ for(let ball of balls){
 
 /*
 Bolden følger midten af åbningen
-mellem de to grønne stolper.
+mellem de grønne stolper.
 */
 
 ball.x=
@@ -458,9 +457,7 @@ ball.pipe.width+
 (ball.pipe.gap/2);
 
 
-/*
-Bolden falder ned.
-*/
+/* BOLDENS FALDHASTIGHED */
 
 const fallSpeed=
 speedLevel===5 ? 370 : 320;
@@ -468,7 +465,7 @@ speedLevel===5 ? 370 : 320;
 ball.y+=fallSpeed*dt;
 
 
-/* KOLLISION MELLEM FUGL OG BOLD */
+/* KOLLISION MED BOLD */
 
 const dx=bird.x-ball.x;
 const dy=bird.y-ball.y;
@@ -520,13 +517,20 @@ endGame();
 }
 
 
+/* =================================
+   TEGNING AF SPILLET
+   ================================= */
+
 function draw(){
 
 /* HIMMEL */
 
 let sky=
 ctx.createLinearGradient(
-0,0,0,H
+0,
+0,
+0,
+H
 );
 
 sky.addColorStop(
@@ -549,9 +553,15 @@ H
 );
 
 
-/* STOLPER */
+/* =================================
+   GRØNNE STOLPER
+   MED AFRUNDEDE HÆTTER
+   ================================= */
 
 for(let p of pipes){
+
+const capHeight=20;
+const capExtra=8;
 
 ctx.fillStyle="#45a844";
 
@@ -566,6 +576,21 @@ p.top
 );
 
 
+/* AFRUNDET HÆTTE PÅ ØVERSTE STOLPE */
+
+ctx.beginPath();
+
+ctx.roundRect(
+p.x-capExtra,
+p.top-capHeight,
+p.width+(capExtra*2),
+capHeight,
+10
+);
+
+ctx.fill();
+
+
 /* NEDERSTE STOLPE */
 
 ctx.fillRect(
@@ -575,10 +600,27 @@ p.width,
 H-(p.top+p.gap)-35
 );
 
+
+/* AFRUNDET HÆTTE PÅ NEDERSTE STOLPE */
+
+ctx.beginPath();
+
+ctx.roundRect(
+p.x-capExtra,
+p.top+p.gap,
+p.width+(capExtra*2),
+capHeight,
+10
+);
+
+ctx.fill();
+
 }
 
 
-/* BOLDE */
+/* =================================
+   BOLDE
+   ================================= */
 
 for(let ball of balls){
 
@@ -599,7 +641,9 @@ ctx.fill();
 }
 
 
-/* JORD */
+/* =================================
+   JORD
+   ================================= */
 
 ctx.fillStyle="#65b34a";
 
@@ -611,7 +655,9 @@ W,
 );
 
 
-/* GUL FIGUR */
+/* =================================
+   GUL FUGL
+   ================================= */
 
 ctx.fillStyle="#ffd23f";
 
@@ -645,7 +691,9 @@ Math.PI*2
 ctx.fill();
 
 
-/* SCORE */
+/* =================================
+   SCORE
+   ================================= */
 
 ctx.fillStyle="white";
 
@@ -662,7 +710,9 @@ W/2,
 }
 
 
-/* GAME LOOP */
+/* =================================
+   GAME LOOP
+   ================================= */
 
 function loop(time){
 
