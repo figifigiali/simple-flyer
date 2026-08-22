@@ -4,208 +4,507 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Simple Flyer</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;touch-action:none}
-body{background:#75c9ee;font-family:Arial}
-canvas{display:block;width:100%;height:100%}
+
+html,body{
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+touch-action:none
+}
+
+body{
+background:#75c9ee;
+font-family:Arial
+}
+
+canvas{
+display:block;
+width:100%;
+height:100%
+}
+
 #message{
-position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-color:white;font-size:26px;font-weight:bold;text-align:center;
-text-shadow:0 2px 5px #555;pointer-events:none
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:26px;
+font-weight:bold;
+text-align:center;
+text-shadow:0 2px 5px #555;
+pointer-events:none
+}
+
+#speed{
+position:fixed;
+left:50%;
+top:56%;
+transform:translate(-50%,-50%);
+display:flex;
+gap:9px;
+pointer-events:auto
+}
+
+.speedBtn{
+width:48px;
+height:48px;
+border:2px solid white;
+border-radius:50%;
+background:rgba(0,0,0,.25);
+color:white;
+font-size:20px;
+font-weight:bold;
+text-shadow:0 1px 3px #555
+}
+
+.speedBtn.selected{
+background:white;
+color:#333;
+text-shadow:none
+}
+
+#speedLabel{
+position:fixed;
+left:50%;
+top:51%;
+transform:translate(-50%,-50%);
+color:white;
+font-size:16px;
+font-weight:bold;
+text-shadow:0 2px 4px #555;
+pointer-events:none
 }
 </style>
 </head>
 
 <body>
+
 <canvas id="game"></canvas>
-<div id="message">TRYK FOR AT STARTE</div>
+
+<div id="message">VÆLG HASTIGHED</div>
+
+<div id="speedLabel">HASTIGHED</div>
+
+<div id="speed">
+<button class="speedBtn" data-speed="1">1</button>
+<button class="speedBtn" data-speed="2">2</button>
+<button class="speedBtn selected" data-speed="3">3</button>
+<button class="speedBtn" data-speed="4">4</button>
+<button class="speedBtn" data-speed="5">5</button>
+</div>
 
 <script>
+
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
+
 const message=document.getElementById("message");
+const speedBox=document.getElementById("speed");
+const speedLabel=document.getElementById("speedLabel");
+
+const buttons=document.querySelectorAll(".speedBtn");
 
 let W,H;
 let bird;
 let pipes=[];
 let score=0;
-let gameOver=false;
 let playing=false;
 let lastTime=0;
 let pipeTimer=0;
 
+let speedLevel=3;
+
+const speedValues={
+1:130,
+2:165,
+3:200,
+4:235,
+5:270
+};
+
 function resize(){
- W=window.innerWidth;
- H=window.innerHeight;
- canvas.width=W;
- canvas.height=H;
+
+W=window.innerWidth;
+H=window.innerHeight;
+
+canvas.width=W;
+canvas.height=H;
+
 }
+
 window.addEventListener("resize",resize);
+
 resize();
 
-function startGame(){
- bird={
-   x:W*0.23,
-   y:H*0.45,
-   velocity:0
- };
- pipes=[];
- score=0;
- pipeTimer=0;
- gameOver=false;
- playing=true;
- message.style.display="none";
-}
 
-function flap(){
- if(!playing){
-   startGame();
- }
- bird.velocity=-420;
-}
+function selectSpeed(level){
 
-window.addEventListener("pointerdown",function(e){
- e.preventDefault();
- flap();
-},{passive:false});
+speedLevel=level;
 
-window.addEventListener("touchstart",function(e){
- e.preventDefault();
- flap();
-},{passive:false});
+buttons.forEach(button=>{
 
-window.addEventListener("keydown",function(e){
- if(e.code==="Space"){
-   e.preventDefault();
-   flap();
- }
+button.classList.toggle(
+"selected",
+Number(button.dataset.speed)===level
+);
+
 });
 
-function addPipe(){
- const gap=160;
- const min=80;
- const max=H-80-gap;
- const top=min+Math.random()*(max-min);
-
- pipes.push({
-   x:W+20,
-   width:60,
-   top:top,
-   gap:gap,
-   passed:false
- });
 }
+
+
+buttons.forEach(button=>{
+
+button.addEventListener("pointerdown",function(e){
+
+e.preventDefault();
+e.stopPropagation();
+
+selectSpeed(
+Number(button.dataset.speed)
+);
+
+});
+
+});
+
+
+function startGame(){
+
+bird={
+x:W*0.23,
+y:H*0.45,
+velocity:0
+};
+
+pipes=[];
+
+score=0;
+
+pipeTimer=0;
+
+playing=true;
+
+message.style.display="none";
+
+speedBox.style.display="none";
+speedLabel.style.display="none";
+
+}
+
+
+function flap(){
+
+if(!playing){
+
+startGame();
+
+}
+
+bird.velocity=-420;
+
+}
+
+
+window.addEventListener("pointerdown",function(e){
+
+if(e.target.classList.contains("speedBtn")){
+
+return;
+
+}
+
+e.preventDefault();
+
+flap();
+
+},{passive:false});
+
+
+window.addEventListener("touchstart",function(e){
+
+if(e.target.classList.contains("speedBtn")){
+
+return;
+
+}
+
+e.preventDefault();
+
+flap();
+
+},{passive:false});
+
+
+window.addEventListener("keydown",function(e){
+
+if(e.code==="Space"){
+
+e.preventDefault();
+
+flap();
+
+}
+
+});
+
+
+function addPipe(){
+
+const gap=160;
+
+const min=80;
+
+const max=H-80-gap;
+
+const top=min+Math.random()*(max-min);
+
+pipes.push({
+
+x:W+20,
+
+width:60,
+
+top:top,
+
+gap:gap,
+
+passed:false
+
+});
+
+}
+
 
 function endGame(){
- playing=false;
- gameOver=true;
- message.innerHTML="GAME OVER<br><span style='font-size:17px'>TRYK FOR AT PRØVE IGEN</span>";
- message.style.display="flex";
+
+playing=false;
+
+message.innerHTML=
+"GAME OVER<br><span style='font-size:17px'>TRYK FOR AT PRØVE IGEN</span>";
+
+message.style.display="flex";
+
+speedBox.style.display="flex";
+speedLabel.style.display="block";
+
 }
+
 
 function update(dt){
 
- if(!playing)return;
+if(!playing){
 
- bird.velocity+=1100*dt;
- bird.y+=bird.velocity*dt;
+return;
 
- pipeTimer+=dt;
-
- if(pipeTimer>1.5){
-   pipeTimer=0;
-   addPipe();
- }
-
- for(let p of pipes){
-
-   p.x-=200*dt;
-
-   if(!p.passed && p.x+p.width<bird.x){
-     p.passed=true;
-     score++;
-   }
-
-   if(
-     bird.x+17>p.x &&
-     bird.x-17<p.x+p.width &&
-     (
-       bird.y-17<p.top ||
-       bird.y+17>p.top+p.gap
-     )
-   ){
-     endGame();
-   }
- }
-
- pipes=pipes.filter(p=>p.x+p.width>0);
-
- if(bird.y-17<0 || bird.y+17>H-35){
-   endGame();
- }
 }
+
+
+bird.velocity+=1100*dt;
+
+bird.y+=bird.velocity*dt;
+
+
+pipeTimer+=dt;
+
+
+if(pipeTimer>1.5){
+
+pipeTimer=0;
+
+addPipe();
+
+}
+
+
+const pipeSpeed=speedValues[speedLevel];
+
+
+for(let p of pipes){
+
+p.x-=pipeSpeed*dt;
+
+
+if(!p.passed && p.x+p.width<bird.x){
+
+p.passed=true;
+
+score++;
+
+}
+
+
+if(
+
+bird.x+17>p.x &&
+
+bird.x-17<p.x+p.width &&
+
+(
+
+bird.y-17<p.top ||
+
+bird.y+17>p.top+p.gap
+
+)
+
+){
+
+endGame();
+
+}
+
+}
+
+
+pipes=pipes.filter(
+p=>p.x+p.width>0
+);
+
+
+if(
+
+bird.y-17<0 ||
+
+bird.y+17>H-35
+
+){
+
+endGame();
+
+}
+
+}
+
 
 function draw(){
 
- let sky=ctx.createLinearGradient(0,0,0,H);
- sky.addColorStop(0,"#70c8ee");
- sky.addColorStop(1,"#e5f8ff");
+let sky=ctx.createLinearGradient(
+0,0,0,H
+);
 
- ctx.fillStyle=sky;
- ctx.fillRect(0,0,W,H);
+sky.addColorStop(0,"#70c8ee");
 
- for(let p of pipes){
+sky.addColorStop(1,"#e5f8ff");
 
-   ctx.fillStyle="#45a844";
+ctx.fillStyle=sky;
 
-   ctx.fillRect(p.x,0,p.width,p.top);
+ctx.fillRect(0,0,W,H);
 
-   ctx.fillRect(
-     p.x,
-     p.top+p.gap,
-     p.width,
-     H-(p.top+p.gap)-35
-   );
- }
 
- ctx.fillStyle="#65b34a";
- ctx.fillRect(0,H-35,W,35);
+for(let p of pipes){
 
- // Gul figur
- ctx.fillStyle="#ffd23f";
- ctx.beginPath();
- ctx.arc(bird.x,bird.y,17,0,Math.PI*2);
- ctx.fill();
+ctx.fillStyle="#45a844";
 
- // Øje
- ctx.fillStyle="#222";
- ctx.beginPath();
- ctx.arc(bird.x+6,bird.y-6,3,0,Math.PI*2);
- ctx.fill();
 
- // Score
- ctx.fillStyle="white";
- ctx.font="bold 34px Arial";
- ctx.textAlign="center";
- ctx.fillText(score,W/2,55);
+ctx.fillRect(
+p.x,
+0,
+p.width,
+p.top
+);
+
+
+ctx.fillRect(
+p.x,
+p.top+p.gap,
+p.width,
+H-(p.top+p.gap)-35
+);
+
 }
+
+
+ctx.fillStyle="#65b34a";
+
+ctx.fillRect(
+0,
+H-35,
+W,
+35
+);
+
+
+ctx.fillStyle="#ffd23f";
+
+ctx.beginPath();
+
+ctx.arc(
+bird.x,
+bird.y,
+17,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.fillStyle="#222";
+
+ctx.beginPath();
+
+ctx.arc(
+bird.x+6,
+bird.y-6,
+3,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.fillStyle="white";
+
+ctx.font="bold 34px Arial";
+
+ctx.textAlign="center";
+
+ctx.fillText(
+score,
+W/2,
+55
+);
+
+}
+
 
 function loop(time){
 
- let dt=(time-lastTime)/1000;
- if(dt>0.035)dt=0.035;
- lastTime=time;
+let dt=(time-lastTime)/1000;
 
- update(dt);
- draw();
+if(dt>0.035){
 
- requestAnimationFrame(loop);
+dt=0.035;
+
 }
 
-bird={x:W*.23,y:H*.45,velocity:0};
+lastTime=time;
+
+update(dt);
+
+draw();
 
 requestAnimationFrame(loop);
+
+}
+
+
+bird={
+x:W*.23,
+y:H*.45,
+velocity:0
+};
+
+requestAnimationFrame(loop);
+
 </script>
 
 </body>
