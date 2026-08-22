@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Simple Flyer</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;touch-action:none}
+body{background:#75c9ee;font-family:Arial}
+canvas{display:block;width:100%;height:100%}
+#message{
+position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+color:white;font-size:26px;font-weight:bold;text-align:center;
+text-shadow:0 2px 5px #555;pointer-events:none
+}
+</style>
+</head>
+
+<body>
+<canvas id="game"></canvas>
+<div id="message">TRYK FOR AT STARTE</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const message=document.getElementById("message");
+
+let W,H;
+let bird;
+let pipes=[];
+let score=0;
+let gameOver=false;
+let playing=false;
+let lastTime=0;
+let pipeTimer=0;
+
+function resize(){
+ W=window.innerWidth;
+ H=window.innerHeight;
+ canvas.width=W;
+ canvas.height=H;
+}
+window.addEventListener("resize",resize);
+resize();
+
+function startGame(){
+ bird={
+   x:W*0.23,
+   y:H*0.45,
+   velocity:0
+ };
+ pipes=[];
+ score=0;
+ pipeTimer=0;
+ gameOver=false;
+ playing=true;
+ message.style.display="none";
+}
+
+function flap(){
+ if(!playing){
+   startGame();
+ }
+ bird.velocity=-420;
+}
+
+window.addEventListener("pointerdown",function(e){
+ e.preventDefault();
+ flap();
+},{passive:false});
+
+window.addEventListener("touchstart",function(e){
+ e.preventDefault();
+ flap();
+},{passive:false});
+
+window.addEventListener("keydown",function(e){
+ if(e.code==="Space"){
+   e.preventDefault();
+   flap();
+ }
+});
+
+function addPipe(){
+ const gap=160;
+ const min=80;
+ const max=H-80-gap;
+ const top=min+Math.random()*(max-min);
+
+ pipes.push({
+   x:W+20,
+   width:60,
+   top:top,
+   gap:gap,
+   passed:false
+ });
+}
+
+function endGame(){
+ playing=false;
+ gameOver=true;
+ message.innerHTML="GAME OVER<br><span style='font-size:17px'>TRYK FOR AT PRØVE IGEN</span>";
+ message.style.display="flex";
+}
+
+function update(dt){
+
+ if(!playing)return;
+
+ bird.velocity+=1100*dt;
+ bird.y+=bird.velocity*dt;
+
+ pipeTimer+=dt;
+
+ if(pipeTimer>1.5){
+   pipeTimer=0;
+   addPipe();
+ }
+
+ for(let p of pipes){
+
+   p.x-=200*dt;
+
+   if(!p.passed && p.x+p.width<bird.x){
+     p.passed=true;
+     score++;
+   }
+
+   if(
+     bird.x+17>p.x &&
+     bird.x-17<p.x+p.width &&
+     (
+       bird.y-17<p.top ||
+       bird.y+17>p.top+p.gap
+     )
+   ){
+     endGame();
+   }
+ }
+
+ pipes=pipes.filter(p=>p.x+p.width>0);
+
+ if(bird.y-17<0 || bird.y+17>H-35){
+   endGame();
+ }
+}
+
+function draw(){
+
+ let sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,"#70c8ee");
+ sky.addColorStop(1,"#e5f8ff");
+
+ ctx.fillStyle=sky;
+ ctx.fillRect(0,0,W,H);
+
+ for(let p of pipes){
+
+   ctx.fillStyle="#45a844";
+
+   ctx.fillRect(p.x,0,p.width,p.top);
+
+   ctx.fillRect(
+     p.x,
+     p.top+p.gap,
+     p.width,
+     H-(p.top+p.gap)-35
+   );
+ }
+
+ ctx.fillStyle="#65b34a";
+ ctx.fillRect(0,H-35,W,35);
+
+ // Gul figur
+ ctx.fillStyle="#ffd23f";
+ ctx.beginPath();
+ ctx.arc(bird.x,bird.y,17,0,Math.PI*2);
+ ctx.fill();
+
+ // Øje
+ ctx.fillStyle="#222";
+ ctx.beginPath();
+ ctx.arc(bird.x+6,bird.y-6,3,0,Math.PI*2);
+ ctx.fill();
+
+ // Score
+ ctx.fillStyle="white";
+ ctx.font="bold 34px Arial";
+ ctx.textAlign="center";
+ ctx.fillText(score,W/2,55);
+}
+
+function loop(time){
+
+ let dt=(time-lastTime)/1000;
+ if(dt>0.035)dt=0.035;
+ lastTime=time;
+
+ update(dt);
+ draw();
+
+ requestAnimationFrame(loop);
+}
+
+bird={x:W*.23,y:H*.45,velocity:0};
+
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
