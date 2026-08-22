@@ -314,8 +314,6 @@ pipeCount++;
 /*
 BOLD PÅ HVER ANDEN STOLPE
 KUN PÅ NIVEAU 4 OG 5
-
-Bolden placeres midt i åbningen.
 */
 
 if(
@@ -375,7 +373,21 @@ bird.y+=bird.velocity*dt;
 
 pipeTimer+=dt;
 
-if(pipeTimer>1.5){
+let pipeInterval=1.5;
+
+if(speedLevel===4){
+
+pipeInterval=1.25;
+
+}
+
+if(speedLevel===5){
+
+pipeInterval=1.05;
+
+}
+
+if(pipeTimer>pipeInterval){
 
 pipeTimer=0;
 
