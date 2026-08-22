@@ -124,7 +124,7 @@ let pipeCount=0;
 let speedLevel=3;
 
 
-/* HASTIGHEDERNE ER UÆNDRET */
+/* HASTIGHEDER */
 
 const speedValues={
 1:130,
@@ -191,13 +191,11 @@ velocity:0
 };
 
 pipes=[];
-
 balls=[];
 
 score=0;
 
 pipeTimer=0;
-
 pipeCount=0;
 
 playing=true;
@@ -295,11 +293,17 @@ const max=H-70-gap;
 const top=min+Math.random()*(max-min);
 
 const pipe={
+
 x:W+20,
+
 width:60,
+
 top:top,
+
 gap:gap,
+
 passed:false
+
 };
 
 pipes.push(pipe);
@@ -319,9 +323,11 @@ pipeCount%2===0
 
 balls.push({
 
+pipe:pipe,
+
 x:pipe.x+pipe.width/2,
 
-y:-25,
+y:-20,
 
 radius:14
 
@@ -426,17 +432,24 @@ endGame();
 for(let ball of balls){
 
 /*
-Boldens lodrette hastighed.
-På niveau 5 falder den lidt hurtigere.
+Bolden følger den stolpe,
+den blev skabt sammen med.
 */
 
-const ballSpeed=
-speedLevel===5 ? 360 : 310;
-
-ball.y+=ballSpeed*dt;
+ball.x=ball.pipe.x+ball.pipe.width/2;
 
 
-/* KOLLISION MELLEM FUGL OG BOLD */
+/*
+Bolden falder ned.
+*/
+
+const fallSpeed=
+speedLevel===5 ? 370 : 320;
+
+ball.y+=fallSpeed*dt;
+
+
+/* KOLLISION */
 
 const dx=bird.x-ball.x;
 const dy=bird.y-ball.y;
@@ -446,8 +459,7 @@ dx*dx+dy*dy
 );
 
 if(
-distance<
-bird.r+ball.radius
+distance<bird.r+ball.radius
 ){
 
 endGame();
@@ -464,7 +476,7 @@ p=>p.x+p.width>0
 );
 
 
-/* FJERN BOLDE DER ER FALDET UD */
+/* FJERN BOLDE */
 
 balls=balls.filter(
 ball=>ball.y-ball.radius<H
@@ -575,7 +587,7 @@ W,
 );
 
 
-/* GUL FIGUR */
+/* FUGL */
 
 ctx.fillStyle="#ffd23f";
 
