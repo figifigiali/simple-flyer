@@ -6,10 +6,7 @@
 <title>Crazy Flyer</title>
 
 <style>
-
-*{
-box-sizing:border-box
-}
+*{box-sizing:border-box}
 
 html,body{
 margin:0;
@@ -83,7 +80,6 @@ font-weight:bold;
 text-shadow:0 2px 4px #555;
 pointer-events:none
 }
-
 </style>
 </head>
 
@@ -92,117 +88,82 @@ pointer-events:none
 <canvas id="game"></canvas>
 
 <div id="message">VÆLG HASTIGHED</div>
-
 <div id="speedLabel">HASTIGHED</div>
 
 <div id="speed">
-
 <button class="speedBtn" data-speed="1">1</button>
-
 <button class="speedBtn" data-speed="2">2</button>
-
 <button class="speedBtn selected" data-speed="3">3</button>
-
 <button class="speedBtn" data-speed="4">4</button>
-
 <button class="speedBtn" data-speed="5">5</button>
-
 </div>
-
 
 <script>
 
 const canvas=document.getElementById("game");
-
 const ctx=canvas.getContext("2d");
 
 const message=document.getElementById("message");
-
 const speedBox=document.getElementById("speed");
-
 const speedLabel=document.getElementById("speedLabel");
-
 const buttons=document.querySelectorAll(".speedBtn");
 
-
 let W,H;
-
 let bird;
 
 let pipes=[];
-
 let balls=[];
 
 let score=0;
-
 let playing=false;
 
 let lastTime=0;
-
 let pipeTimer=0;
-
 let pipeCount=0;
 
 let speedLevel=3;
 
 
-/* =========================
-   HASTIGHEDER
-========================= */
+/* HASTIGHEDER */
 
 const speedValues={
-
 1:130,
 2:165,
 3:200,
 4:235,
 5:270
-
 };
 
 
-/* =========================
-   MELLEMRUM MELLEM STOLPER
-========================= */
+/* MELLEMRUM MELLEM STOLPER */
 
 const gapValues={
-
 1:260,
 2:240,
 3:220,
 4:200,
 5:180
-
 };
 
 
-/* =========================
-   SKÆRM
-========================= */
+/* SKÆRM */
 
 function resize(){
 
 W=window.innerWidth;
-
 H=window.innerHeight;
 
 canvas.width=W;
-
 canvas.height=H;
 
 }
 
-window.addEventListener(
-"resize",
-resize
-);
+window.addEventListener("resize",resize);
 
 resize();
 
 
-/* =========================
-   VÆLG HASTIGHED
-========================= */
+/* HASTIGHED */
 
 function selectSpeed(level){
 
@@ -211,11 +172,8 @@ speedLevel=level;
 buttons.forEach(button=>{
 
 button.classList.toggle(
-
 "selected",
-
 Number(button.dataset.speed)===level
-
 );
 
 });
@@ -225,64 +183,48 @@ Number(button.dataset.speed)===level
 
 buttons.forEach(button=>{
 
-button.addEventListener(
-"pointerdown",
-function(e){
+button.addEventListener("pointerdown",function(e){
 
 e.preventDefault();
-
 e.stopPropagation();
 
 selectSpeed(
 Number(button.dataset.speed)
 );
 
-}
-);
+});
 
 });
 
 
-/* =========================
-   START SPIL
-========================= */
+/* START */
 
 function startGame(){
 
 bird={
-
 x:W*0.23,
-
 y:H*0.45,
-
 velocity:0
-
 };
 
 pipes=[];
-
 balls=[];
 
 score=0;
 
 pipeTimer=0;
-
 pipeCount=0;
 
 playing=true;
 
 message.style.display="none";
-
 speedBox.style.display="none";
-
 speedLabel.style.display="none";
 
 }
 
 
-/* =========================
-   HOP
-========================= */
+/* HOP */
 
 function flap(){
 
@@ -297,17 +239,11 @@ bird.velocity=-450;
 }
 
 
-/* =========================
-   TOUCH
-========================= */
+/* TOUCH */
 
-window.addEventListener(
-"pointerdown",
-function(e){
+window.addEventListener("pointerdown",function(e){
 
-if(
-e.target.classList.contains("speedBtn")
-){
+if(e.target.classList.contains("speedBtn")){
 
 return;
 
@@ -317,18 +253,12 @@ e.preventDefault();
 
 flap();
 
-},
-{passive:false}
-);
+},{passive:false});
 
 
-window.addEventListener(
-"touchstart",
-function(e){
+window.addEventListener("touchstart",function(e){
 
-if(
-e.target.classList.contains("speedBtn")
-){
+if(e.target.classList.contains("speedBtn")){
 
 return;
 
@@ -338,18 +268,12 @@ e.preventDefault();
 
 flap();
 
-},
-{passive:false}
-);
+},{passive:false});
 
 
-/* =========================
-   TASTATUR
-========================= */
+/* TASTATUR */
 
-window.addEventListener(
-"keydown",
-function(e){
+window.addEventListener("keydown",function(e){
 
 if(e.code==="Space"){
 
@@ -359,41 +283,31 @@ flap();
 
 }
 
-}
-);
+});
 
 
-/* =========================
-   NY STOLPE
-========================= */
+/* NY STOLPE */
 
 function addPipe(){
 
 const gap=gapValues[speedLevel];
 
 const min=70;
-
 const max=H-70-gap;
 
 const top=
 min+
 Math.random()*(max-min);
 
-
 const pipe={
 
 x:W+20,
-
 width:60,
-
 top:top,
-
 gap:gap,
-
 passed:false
 
 };
-
 
 pipes.push(pipe);
 
@@ -401,15 +315,11 @@ pipeCount++;
 
 
 /*
-=================================
+================================================
 RØD BOLD
-
 NIVEAU 3, 4 OG 5
-
 HVER ANDEN STOLPE
-
-BOLDEN STARTER MIDT PÅ SKÆRMEN
-=================================
+================================================
 */
 
 if(
@@ -426,11 +336,48 @@ pipeCount%2===0
 
 balls.push({
 
+type:"red",
+
 x:W*0.50,
 
-y:-15,
+y:-20,
 
 radius:14
+
+});
+
+}
+
+
+/*
+================================================
+TENNISBOLD
+NIVEAU 3, 4 OG 5
+HVER ANDEN STOLPE
+================================================
+*/
+
+if(
+
+(speedLevel===3 ||
+speedLevel===4 ||
+speedLevel===5)
+
+&&
+
+pipeCount%2===0
+
+){
+
+balls.push({
+
+type:"tennis",
+
+x:W*0.70,
+
+y:-100,
+
+radius:13
 
 });
 
@@ -439,30 +386,24 @@ radius:14
 }
 
 
-/* =========================
-   GAME OVER
-========================= */
+/* GAME OVER */
 
 function endGame(){
 
 playing=false;
 
 message.innerHTML=
-
 "GAME OVER<br><span style='font-size:17px'>TRYK FOR AT PRØVE IGEN</span>";
 
 message.style.display="flex";
 
 speedBox.style.display="flex";
-
 speedLabel.style.display="block";
 
 }
 
 
-/* =========================
-   OPDATERING
-========================= */
+/* OPDATERING */
 
 function update(dt){
 
@@ -473,25 +414,18 @@ return;
 }
 
 
-/* =========================
-   FUGL
-========================= */
+/* FUGL */
 
 bird.velocity+=1100*dt;
 
 bird.y+=bird.velocity*dt;
 
 
-/* =========================
-   NY STOLPE
-========================= */
+/* NY STOLPE */
 
 pipeTimer+=dt;
 
 let pipeInterval=1.5;
-
-
-/* Niveau 4 */
 
 if(speedLevel===4){
 
@@ -499,15 +433,11 @@ pipeInterval=1.25;
 
 }
 
-
-/* Niveau 5 */
-
 if(speedLevel===5){
 
 pipeInterval=1.05;
 
 }
-
 
 if(pipeTimer>pipeInterval){
 
@@ -522,9 +452,7 @@ const pipeSpeed=
 speedValues[speedLevel];
 
 
-/* =========================
-   STOLPER
-========================= */
+/* STOLPER */
 
 for(let p of pipes){
 
@@ -534,11 +462,8 @@ p.x-=pipeSpeed*dt;
 /* SCORE */
 
 if(
-
 !p.passed &&
-
 p.x+p.width<bird.x
-
 ){
 
 p.passed=true;
@@ -573,28 +498,23 @@ endGame();
 }
 
 
-/* =========================
-   RØDE BOLDE
-========================= */
+/* =================================
+   RØDE BOLDE OG TENNISBOLDE
+================================= */
 
 for(let ball of balls){
 
 /*
-BOLDEN FALDER KUN LODRET.
-
-X ÆNDRES ALDRIG.
+Alle bolde falder lodret.
 */
 
 ball.y+=320*dt;
 
 
-/* KOLLISION MED BOLD */
+/* KOLLISION */
 
-const dx=
-bird.x-ball.x;
-
-const dy=
-bird.y-ball.y;
+const dx=bird.x-ball.x;
+const dy=bird.y-ball.y;
 
 const distance=
 Math.sqrt(
@@ -602,12 +522,9 @@ dx*dx+
 dy*dy
 );
 
-
 if(
-
 distance<
 17+ball.radius
-
 ){
 
 endGame();
@@ -617,31 +534,21 @@ endGame();
 }
 
 
-/* =========================
-   FJERN GAMLE STOLPER
-========================= */
+/* FJERN GAMLE STOLPER */
 
 pipes=pipes.filter(
-
 p=>p.x+p.width>0
-
 );
 
 
-/* =========================
-   FJERN GAMLE BOLDE
-========================= */
+/* FJERN GAMLE BOLDE */
 
 balls=balls.filter(
-
 ball=>ball.y-ball.radius<H
-
 );
 
 
-/* =========================
-   TOP / BUND
-========================= */
+/* TOP / BUND */
 
 if(
 
@@ -658,46 +565,28 @@ endGame();
 }
 
 
-/* =========================
-   AFRUNDET REKTANGEL
-========================= */
+/* AFRUNDET REKTANGEL */
 
 function roundedRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 ){
 
 ctx.beginPath();
 
 ctx.roundRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 );
 
 }
 
 
-/* =========================
-   SKYER
-========================= */
+/* SKYER */
 
-function drawCloud(
-x,
-y,
-size
-){
+function drawCloud(x,y,size){
 
-ctx.fillStyle=
-"rgba(255,255,255,.75)";
+ctx.fillStyle="rgba(255,255,255,.75)";
 
 ctx.beginPath();
-
 
 ctx.arc(
 x,
@@ -707,7 +596,6 @@ size*.55,
 Math.PI*2
 );
 
-
 ctx.arc(
 x+size*.55,
 y-size*.15,
@@ -715,7 +603,6 @@ size*.7,
 0,
 Math.PI*2
 );
-
 
 ctx.arc(
 x+size*1.15,
@@ -725,65 +612,42 @@ size*.5,
 Math.PI*2
 );
 
-
 ctx.fill();
 
 }
 
 
-/* =========================
-   BY
-========================= */
+/* BY */
 
 function drawCity(){
 
-ctx.fillStyle=
-"rgba(80,170,210,.30)";
-
+ctx.fillStyle="rgba(80,170,210,.30)";
 
 const buildings=[
 
 [0,.86,.07,.14],
-
 [.07,.82,.09,.18],
-
 [.16,.88,.06,.12],
-
 [.22,.80,.10,.20],
-
 [.32,.85,.07,.15],
-
 [.39,.78,.09,.22],
-
 [.48,.86,.06,.14],
-
 [.54,.81,.10,.19],
-
 [.64,.86,.07,.14],
-
 [.71,.79,.09,.21],
-
 [.80,.84,.07,.16],
-
 [.87,.76,.10,.24],
-
 [.97,.84,.06,.16]
 
 ];
 
-
 for(let b of buildings){
 
 ctx.fillRect(
-
 b[0]*W,
-
 b[1]*H,
-
 b[2]*W,
-
 b[3]*H
-
 );
 
 }
@@ -791,20 +655,13 @@ b[3]*H
 }
 
 
-/* =========================
-   BUSKE
-========================= */
+/* BUSKE */
 
 function drawBushes(){
 
 ctx.fillStyle="#48b84f";
 
-
-for(
-let x=0;
-x<W;
-x+=35
-){
+for(let x=0;x<W;x+=35){
 
 ctx.beginPath();
 
@@ -823,14 +680,11 @@ ctx.fill();
 }
 
 
-/* =========================
-   STOLPER
-========================= */
+/* STOLPER */
 
 function drawPipe(p){
 
 const capHeight=20;
-
 const capExtra=8;
 
 ctx.fillStyle="#45a844";
@@ -839,32 +693,21 @@ ctx.fillStyle="#45a844";
 /* ØVERSTE STOLPE */
 
 ctx.fillRect(
-
 p.x,
-
 0,
-
 p.width,
-
 p.top
-
 );
 
 
-/* ØVERSTE AFRUNDEDE HÆTTE */
+/* ØVERSTE HÆTTE */
 
 roundedRect(
-
 p.x-capExtra,
-
 p.top-capHeight,
-
 p.width+capExtra*2,
-
 capHeight,
-
 10
-
 );
 
 ctx.fill();
@@ -873,32 +716,21 @@ ctx.fill();
 /* NEDERSTE STOLPE */
 
 ctx.fillRect(
-
 p.x,
-
 p.top+p.gap,
-
 p.width,
-
 H-(p.top+p.gap)-45
-
 );
 
 
-/* NEDERSTE AFRUNDEDE HÆTTE */
+/* NEDERSTE HÆTTE */
 
 roundedRect(
-
 p.x-capExtra,
-
 p.top+p.gap,
-
 p.width+capExtra*2,
-
 capHeight,
-
 10
-
 );
 
 ctx.fill();
@@ -906,16 +738,12 @@ ctx.fill();
 }
 
 
-/* =========================
-   CRAZY EMOJI
-========================= */
+/* CRAZY EMOJI */
 
 function drawBird(){
 
 const x=bird.x;
-
 const y=bird.y;
-
 const r=17;
 
 
@@ -926,9 +754,7 @@ ctx.fillStyle="#ffd21f";
 ctx.beginPath();
 
 ctx.arc(
-x,
-y,
-r,
+x,y,r,
 0,
 Math.PI*2
 );
@@ -936,15 +762,14 @@ Math.PI*2
 ctx.fill();
 
 
-/* VENSTRE ØJE */
+/* ØJNE */
 
 ctx.fillStyle="white";
 
 ctx.beginPath();
 
 ctx.arc(
-x-6,
-y-5,
+x-6,y-5,
 6,
 0,
 Math.PI*2
@@ -952,14 +777,10 @@ Math.PI*2
 
 ctx.fill();
 
-
-/* HØJRE ØJE */
-
 ctx.beginPath();
 
 ctx.arc(
-x+6,
-y-3,
+x+6,y-3,
 6,
 0,
 Math.PI*2
@@ -972,12 +793,21 @@ ctx.fill();
 
 ctx.fillStyle="#111";
 
+ctx.beginPath();
+
+ctx.arc(
+x-5,y-5,
+2.7,
+0,
+Math.PI*2
+);
+
+ctx.fill();
 
 ctx.beginPath();
 
 ctx.arc(
-x-5,
-y-5,
+x+7,y-2,
 2.7,
 0,
 Math.PI*2
@@ -986,30 +816,15 @@ Math.PI*2
 ctx.fill();
 
 
-ctx.beginPath();
-
-ctx.arc(
-x+7,
-y-2,
-2.7,
-0,
-Math.PI*2
-);
-
-ctx.fill();
-
-
-/* CRAZY MUND */
+/* MUND */
 
 ctx.fillStyle="#111";
 
 ctx.beginPath();
 
 ctx.ellipse(
-x+1,
-y+7,
-8,
-5,
+x+1,y+7,
+8,5,
 0,
 0,
 Math.PI*2
@@ -1025,10 +840,8 @@ ctx.fillStyle="#f04455";
 ctx.beginPath();
 
 ctx.ellipse(
-x+2,
-y+11,
-4,
-6,
+x+2,y+11,
+4,6,
 0,
 0,
 Math.PI*2
@@ -1040,20 +853,16 @@ ctx.fill();
 /* ØJENBRYN */
 
 ctx.strokeStyle="#111";
-
 ctx.lineWidth=2.5;
-
 
 ctx.beginPath();
 
 ctx.moveTo(
-x-12,
-y-13
+x-12,y-13
 );
 
 ctx.lineTo(
-x-5,
-y-15
+x-5,y-15
 );
 
 ctx.stroke();
@@ -1062,13 +871,11 @@ ctx.stroke();
 ctx.beginPath();
 
 ctx.moveTo(
-x+4,
-y-14
+x+4,y-14
 );
 
 ctx.lineTo(
-x+12,
-y-10
+x+12,y-10
 );
 
 ctx.stroke();
@@ -1076,9 +883,83 @@ ctx.stroke();
 }
 
 
-/* =========================
-   TEGN SPILLET
-========================= */
+/* RØD BOLD */
+
+function drawRedBall(ball){
+
+ctx.fillStyle="#e53935";
+
+ctx.beginPath();
+
+ctx.arc(
+ball.x,
+ball.y,
+ball.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+/* TENNISBOLD */
+
+function drawTennisBall(ball){
+
+/* Gul/grøn tennisbold */
+
+ctx.fillStyle="#c8e82b";
+
+ctx.beginPath();
+
+ctx.arc(
+ball.x,
+ball.y,
+ball.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* HVIDE TENNISLINJER */
+
+ctx.strokeStyle="white";
+
+ctx.lineWidth=2;
+
+ctx.beginPath();
+
+ctx.arc(
+ball.x-5,
+ball.y,
+ball.radius*.75,
+-Math.PI/2,
+Math.PI/2
+);
+
+ctx.stroke();
+
+
+ctx.beginPath();
+
+ctx.arc(
+ball.x+5,
+ball.y,
+ball.radius*.75,
+Math.PI/2,
+-Math.PI/2
+);
+
+ctx.stroke();
+
+}
+
+
+/* TEGN SPILLET */
 
 function draw(){
 
@@ -1086,39 +967,28 @@ function draw(){
 
 let sky=
 ctx.createLinearGradient(
-0,
-0,
-0,
-H
+0,0,0,H
 );
-
 
 sky.addColorStop(
 0,
 "#31a9e8"
 );
 
-
 sky.addColorStop(
 0.65,
 "#74d0f2"
 );
-
 
 sky.addColorStop(
 1,
 "#d8f5ff"
 );
 
-
 ctx.fillStyle=sky;
 
-
 ctx.fillRect(
-0,
-0,
-W,
-H
+0,0,W,H
 );
 
 
@@ -1130,13 +1000,11 @@ H*.27,
 45
 );
 
-
 drawCloud(
 W*.78,
 H*.34,
 55
 );
-
 
 drawCloud(
 W*.42,
@@ -1159,26 +1027,21 @@ drawPipe(p);
 }
 
 
-/* =========================
-   RØDE BOLDE
-========================= */
+/* BOLDE */
 
 for(let ball of balls){
 
-ctx.fillStyle="#e53935";
+if(ball.type==="red"){
 
+drawRedBall(ball);
 
-ctx.beginPath();
+}
 
-ctx.arc(
-ball.x,
-ball.y,
-ball.radius,
-0,
-Math.PI*2
-);
+if(ball.type==="tennis"){
 
-ctx.fill();
+drawTennisBall(ball);
+
+}
 
 }
 
@@ -1192,7 +1055,6 @@ drawBushes();
 
 ctx.fillStyle="#65b34a";
 
-
 ctx.fillRect(
 0,
 H-35,
@@ -1205,7 +1067,6 @@ W,
 
 ctx.fillStyle="#3d963c";
 
-
 ctx.fillRect(
 0,
 H-38,
@@ -1214,7 +1075,7 @@ W,
 );
 
 
-/* CRAZY EMOJI */
+/* EMOJI */
 
 drawBird();
 
@@ -1227,13 +1088,9 @@ ctx.font="bold 34px Arial";
 
 ctx.textAlign="center";
 
-ctx.shadowColor=
-"rgba(0,0,0,.35)";
-
+ctx.shadowColor="rgba(0,0,0,.35)";
 ctx.shadowBlur=4;
-
 ctx.shadowOffsetY=2;
-
 
 ctx.fillText(
 score,
@@ -1241,30 +1098,24 @@ W/2,
 55
 );
 
-
 ctx.shadowBlur=0;
-
 ctx.shadowOffsetY=0;
 
 }
 
 
-/* =========================
-   GAME LOOP
-========================= */
+/* GAME LOOP */
 
 function loop(time){
 
 let dt=
 (time-lastTime)/1000;
 
-
 if(dt>0.035){
 
 dt=0.035;
 
 }
-
 
 lastTime=time;
 
@@ -1277,20 +1128,15 @@ requestAnimationFrame(loop);
 }
 
 
-/* =========================
-   INITIALISERING
-========================= */
+/* START */
 
 bird={
 
 x:W*.23,
-
 y:H*.45,
-
 velocity:0
 
 };
-
 
 requestAnimationFrame(loop);
 
