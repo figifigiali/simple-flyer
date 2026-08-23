@@ -6,7 +6,10 @@
 <title>Crazy Flyer</title>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box
+}
 
 html,body{
 margin:0;
@@ -80,6 +83,7 @@ font-weight:bold;
 text-shadow:0 2px 4px #555;
 pointer-events:none
 }
+
 </style>
 </head>
 
@@ -88,15 +92,19 @@ pointer-events:none
 <canvas id="game"></canvas>
 
 <div id="message">VÆLG HASTIGHED</div>
+
 <div id="speedLabel">HASTIGHED</div>
 
 <div id="speed">
+
 <button class="speedBtn" data-speed="1">1</button>
 <button class="speedBtn" data-speed="2">2</button>
 <button class="speedBtn selected" data-speed="3">3</button>
 <button class="speedBtn" data-speed="4">4</button>
 <button class="speedBtn" data-speed="5">5</button>
+
 </div>
+
 
 <script>
 
@@ -106,47 +114,66 @@ const ctx=canvas.getContext("2d");
 const message=document.getElementById("message");
 const speedBox=document.getElementById("speed");
 const speedLabel=document.getElementById("speedLabel");
+
 const buttons=document.querySelectorAll(".speedBtn");
 
-let W,H;
-let bird;
 
+let W,H;
+
+let bird;
 let pipes=[];
 let balls=[];
+let flyingBirds=[];
 
 let score=0;
+
 let playing=false;
 
 let lastTime=0;
+
 let pipeTimer=0;
 let pipeCount=0;
+
+
+/* TIMER TIL FLYVENDE FUGL */
+
+let flyingBirdTimer=0;
+
+let nextFlyingBirdTime=4;
+
+
+/* HASTIGHED */
 
 let speedLevel=3;
 
 
-/* HASTIGHEDER */
-
 const speedValues={
+
 1:130,
 2:165,
 3:200,
 4:235,
 5:270
+
 };
 
 
 /* MELLEMRUM MELLEM STOLPER */
 
 const gapValues={
+
 1:260,
 2:240,
 3:220,
 4:200,
 5:180
+
 };
 
 
-/* SKÆRM */
+/* =========================
+   SKÆRM
+========================= */
 
 function resize(){
 
@@ -163,7 +190,9 @@ window.addEventListener("resize",resize);
 resize();
 
 
-/* HASTIGHED */
+/* =========================
+   VÆLG HASTIGHED
+========================= */
 
 function selectSpeed(level){
 
@@ -183,7 +212,9 @@ Number(button.dataset.speed)===level
 
 buttons.forEach(button=>{
 
-button.addEventListener("pointerdown",function(e){
+button.addEventListener(
+"pointerdown",
+function(e){
 
 e.preventDefault();
 e.stopPropagation();
@@ -192,39 +223,61 @@ selectSpeed(
 Number(button.dataset.speed)
 );
 
-});
+}
+);
 
 });
 
 
-/* START */
+/* =========================
+   START SPIL
+========================= */
 
 function startGame(){
 
 bird={
+
 x:W*0.23,
 y:H*0.45,
 velocity:0
+
 };
 
 pipes=[];
 balls=[];
+flyingBirds=[];
 
 score=0;
 
 pipeTimer=0;
 pipeCount=0;
 
+flyingBirdTimer=0;
+
+
+/*
+Første flyvende fugl kommer
+efter et tilfældigt tidsrum.
+*/
+
+nextFlyingBirdTime=
+3+
+Math.random()*3;
+
 playing=true;
 
 message.style.display="none";
+
 speedBox.style.display="none";
+
 speedLabel.style.display="none";
 
 }
 
 
-/* HOP */
+/* =========================
+   HOP
+========================= */
 
 function flap(){
 
@@ -239,26 +292,17 @@ bird.velocity=-450;
 }
 
 
-/* TOUCH */
+/* =========================
+   TOUCH
+========================= */
 
-window.addEventListener("pointerdown",function(e){
+window.addEventListener(
+"pointerdown",
+function(e){
 
-if(e.target.classList.contains("speedBtn")){
-
-return;
-
-}
-
-e.preventDefault();
-
-flap();
-
-},{passive:false});
-
-
-window.addEventListener("touchstart",function(e){
-
-if(e.target.classList.contains("speedBtn")){
+if(
+e.target.classList.contains("speedBtn")
+){
 
 return;
 
@@ -268,12 +312,39 @@ e.preventDefault();
 
 flap();
 
-},{passive:false});
+},
+{passive:false}
+);
 
 
-/* TASTATUR */
+window.addEventListener(
+"touchstart",
+function(e){
 
-window.addEventListener("keydown",function(e){
+if(
+e.target.classList.contains("speedBtn")
+){
+
+return;
+
+}
+
+e.preventDefault();
+
+flap();
+
+},
+{passive:false}
+);
+
+
+/* =========================
+   TASTATUR
+========================= */
+
+window.addEventListener(
+"keydown",
+function(e){
 
 if(e.code==="Space"){
 
@@ -286,28 +357,37 @@ flap();
 });
 
 
-/* NY STOLPE */
+/* =========================
+   NY STOLPE
+========================= */
 
 function addPipe(){
 
 const gap=gapValues[speedLevel];
 
 const min=70;
+
 const max=H-70-gap;
 
 const top=
 min+
 Math.random()*(max-min);
 
+
 const pipe={
 
 x:W+20,
+
 width:60,
+
 top:top,
+
 gap:gap,
+
 passed:false
 
 };
+
 
 pipes.push(pipe);
 
@@ -315,11 +395,11 @@ pipeCount++;
 
 
 /*
-================================================
+=================================
 RØD BOLD
 NIVEAU 3, 4 OG 5
 HVER ANDEN STOLPE
-================================================
+=================================
 */
 
 if(
@@ -350,11 +430,11 @@ radius:14
 
 
 /*
-================================================
+=================================
 TENNISBOLD
 NIVEAU 3, 4 OG 5
 HVER ANDEN STOLPE
-================================================
+=================================
 */
 
 if(
@@ -386,7 +466,52 @@ radius:13
 }
 
 
-/* GAME OVER */
+/* =========================
+   NY FLYVENDE FUGL
+========================= */
+
+function addFlyingBird(){
+
+/*
+Fuglen kommer fra højre.
+*/
+
+const birdY=
+80+
+Math.random()*(H-180);
+
+
+/*
+Tilfældig størrelse.
+*/
+
+const size=
+12+
+Math.random()*4;
+
+
+flyingBirds.push({
+
+x:W+40,
+
+y:birdY,
+
+size:size,
+
+speed:
+170+
+Math.random()*80,
+
+wingTime:0
+
+});
+
+}
+
+
+/* =========================
+   GAME OVER
+========================= */
 
 function endGame(){
 
@@ -398,12 +523,15 @@ message.innerHTML=
 message.style.display="flex";
 
 speedBox.style.display="flex";
+
 speedLabel.style.display="block";
 
 }
 
 
-/* OPDATERING */
+/* =========================
+   OPDATERING
+========================= */
 
 function update(dt){
 
@@ -414,18 +542,23 @@ return;
 }
 
 
-/* FUGL */
+/* =========================
+   CRAZY FLYER
+========================= */
 
 bird.velocity+=1100*dt;
 
 bird.y+=bird.velocity*dt;
 
 
-/* NY STOLPE */
+/* =========================
+   NY STOLPE
+========================= */
 
 pipeTimer+=dt;
 
 let pipeInterval=1.5;
+
 
 if(speedLevel===4){
 
@@ -433,11 +566,13 @@ pipeInterval=1.25;
 
 }
 
+
 if(speedLevel===5){
 
 pipeInterval=1.05;
 
 }
+
 
 if(pipeTimer>pipeInterval){
 
@@ -452,7 +587,9 @@ const pipeSpeed=
 speedValues[speedLevel];
 
 
-/* STOLPER */
+/* =========================
+   STOLPER
+========================= */
 
 for(let p of pipes){
 
@@ -462,8 +599,11 @@ p.x-=pipeSpeed*dt;
 /* SCORE */
 
 if(
+
 !p.passed &&
+
 p.x+p.width<bird.x
+
 ){
 
 p.passed=true;
@@ -498,9 +638,9 @@ endGame();
 }
 
 
-/* =================================
-   RØDE BOLDE OG TENNISBOLDE
-================================= */
+/* =========================
+   RØDE BOLDE + TENNISBOLDE
+========================= */
 
 for(let ball of balls){
 
@@ -513,8 +653,11 @@ ball.y+=320*dt;
 
 /* KOLLISION */
 
-const dx=bird.x-ball.x;
-const dy=bird.y-ball.y;
+const dx=
+bird.x-ball.x;
+
+const dy=
+bird.y-ball.y;
 
 const distance=
 Math.sqrt(
@@ -522,9 +665,12 @@ dx*dx+
 dy*dy
 );
 
+
 if(
+
 distance<
 17+ball.radius
+
 ){
 
 endGame();
@@ -534,21 +680,105 @@ endGame();
 }
 
 
-/* FJERN GAMLE STOLPER */
+/* =========================
+   FLYVENDE FUGLE
+========================= */
+
+flyingBirdTimer+=dt;
+
+
+/*
+Når timeren når det tilfældige
+tidspunkt, kommer en fugl.
+*/
+
+if(
+flyingBirdTimer>
+nextFlyingBirdTime
+){
+
+flyingBirdTimer=0;
+
+nextFlyingBirdTime=
+4+
+Math.random()*5;
+
+addFlyingBird();
+
+}
+
+
+/*
+Flyt fuglene fra højre
+mod venstre.
+*/
+
+for(let fb of flyingBirds){
+
+fb.x-=fb.speed*dt;
+
+fb.wingTime+=dt;
+
+
+/* =========================
+   KOLLISION MED FUGL
+========================= */
+
+const dx=
+bird.x-fb.x;
+
+const dy=
+bird.y-fb.y;
+
+const distance=
+Math.sqrt(
+dx*dx+
+dy*dy
+);
+
+
+if(
+distance<
+17+fb.size
+){
+
+endGame();
+
+}
+
+}
+
+
+/* Fjern fugle der er ude
+af venstre side */
+
+flyingBirds=
+flyingBirds.filter(
+fb=>fb.x+40>0
+);
+
+
+/* =========================
+   FJERN GAMLE STOLPER
+========================= */
 
 pipes=pipes.filter(
 p=>p.x+p.width>0
 );
 
 
-/* FJERN GAMLE BOLDE */
+/* =========================
+   FJERN GAMLE BOLDE
+========================= */
 
 balls=balls.filter(
 ball=>ball.y-ball.radius<H
 );
 
 
-/* TOP / BUND */
+/* =========================
+   TOP / BUND
+========================= */
 
 if(
 
@@ -565,26 +795,43 @@ endGame();
 }
 
 
-/* AFRUNDET REKTANGEL */
+/* =========================
+   AFRUNDET REKTANGEL
+========================= */
 
 function roundedRect(
-x,y,w,h,r
+x,
+y,
+w,
+h,
+r
 ){
 
 ctx.beginPath();
 
 ctx.roundRect(
-x,y,w,h,r
+x,
+y,
+w,
+h,
+r
 );
 
 }
 
 
-/* SKYER */
+/* =========================
+   SKYER
+========================= */
 
-function drawCloud(x,y,size){
+function drawCloud(
+x,
+y,
+size
+){
 
-ctx.fillStyle="rgba(255,255,255,.75)";
+ctx.fillStyle=
+"rgba(255,255,255,.75)";
 
 ctx.beginPath();
 
@@ -617,11 +864,15 @@ ctx.fill();
 }
 
 
-/* BY */
+/* =========================
+   BY
+========================= */
 
 function drawCity(){
 
-ctx.fillStyle="rgba(80,170,210,.30)";
+ctx.fillStyle=
+"rgba(80,170,210,.30)";
+
 
 const buildings=[
 
@@ -641,13 +892,16 @@ const buildings=[
 
 ];
 
+
 for(let b of buildings){
 
 ctx.fillRect(
+
 b[0]*W,
 b[1]*H,
 b[2]*W,
 b[3]*H
+
 );
 
 }
@@ -655,13 +909,20 @@ b[3]*H
 }
 
 
-/* BUSKE */
+/* =========================
+   BUSKE
+========================= */
 
 function drawBushes(){
 
 ctx.fillStyle="#48b84f";
 
-for(let x=0;x<W;x+=35){
+
+for(
+let x=0;
+x<W;
+x+=35
+){
 
 ctx.beginPath();
 
@@ -680,11 +941,14 @@ ctx.fill();
 }
 
 
-/* STOLPER */
+/* =========================
+   STOLPER
+========================= */
 
 function drawPipe(p){
 
 const capHeight=20;
+
 const capExtra=8;
 
 ctx.fillStyle="#45a844";
@@ -693,21 +957,25 @@ ctx.fillStyle="#45a844";
 /* ØVERSTE STOLPE */
 
 ctx.fillRect(
+
 p.x,
 0,
 p.width,
 p.top
+
 );
 
 
-/* ØVERSTE HÆTTE */
+/* ØVERSTE AFRUNDEDE HÆTTE */
 
 roundedRect(
+
 p.x-capExtra,
 p.top-capHeight,
 p.width+capExtra*2,
 capHeight,
 10
+
 );
 
 ctx.fill();
@@ -716,21 +984,25 @@ ctx.fill();
 /* NEDERSTE STOLPE */
 
 ctx.fillRect(
+
 p.x,
 p.top+p.gap,
 p.width,
 H-(p.top+p.gap)-45
+
 );
 
 
-/* NEDERSTE HÆTTE */
+/* NEDERSTE AFRUNDEDE HÆTTE */
 
 roundedRect(
+
 p.x-capExtra,
 p.top+p.gap,
 p.width+capExtra*2,
 capHeight,
 10
+
 );
 
 ctx.fill();
@@ -738,12 +1010,16 @@ ctx.fill();
 }
 
 
-/* CRAZY EMOJI */
+/* =========================
+   CRAZY EMOJI
+========================= */
 
 function drawBird(){
 
 const x=bird.x;
+
 const y=bird.y;
+
 const r=17;
 
 
@@ -754,7 +1030,9 @@ ctx.fillStyle="#ffd21f";
 ctx.beginPath();
 
 ctx.arc(
-x,y,r,
+x,
+y,
+r,
 0,
 Math.PI*2
 );
@@ -762,14 +1040,15 @@ Math.PI*2
 ctx.fill();
 
 
-/* ØJNE */
+/* VENSTRE ØJE */
 
 ctx.fillStyle="white";
 
 ctx.beginPath();
 
 ctx.arc(
-x-6,y-5,
+x-6,
+y-5,
 6,
 0,
 Math.PI*2
@@ -777,10 +1056,14 @@ Math.PI*2
 
 ctx.fill();
 
+
+/* HØJRE ØJE */
+
 ctx.beginPath();
 
 ctx.arc(
-x+6,y-3,
+x+6,
+y-3,
 6,
 0,
 Math.PI*2
@@ -796,18 +1079,21 @@ ctx.fillStyle="#111";
 ctx.beginPath();
 
 ctx.arc(
-x-5,y-5,
+x-5,
+y-5,
 2.7,
 0,
 Math.PI*2
 );
 
 ctx.fill();
+
 
 ctx.beginPath();
 
 ctx.arc(
-x+7,y-2,
+x+7,
+y-2,
 2.7,
 0,
 Math.PI*2
@@ -816,15 +1102,17 @@ Math.PI*2
 ctx.fill();
 
 
-/* MUND */
+/* CRAZY MUND */
 
 ctx.fillStyle="#111";
 
 ctx.beginPath();
 
 ctx.ellipse(
-x+1,y+7,
-8,5,
+x+1,
+y+7,
+8,
+5,
 0,
 0,
 Math.PI*2
@@ -840,8 +1128,10 @@ ctx.fillStyle="#f04455";
 ctx.beginPath();
 
 ctx.ellipse(
-x+2,y+11,
-4,6,
+x+2,
+y+11,
+4,
+6,
 0,
 0,
 Math.PI*2
@@ -853,16 +1143,20 @@ ctx.fill();
 /* ØJENBRYN */
 
 ctx.strokeStyle="#111";
+
 ctx.lineWidth=2.5;
+
 
 ctx.beginPath();
 
 ctx.moveTo(
-x-12,y-13
+x-12,
+y-13
 );
 
 ctx.lineTo(
-x-5,y-15
+x-5,
+y-15
 );
 
 ctx.stroke();
@@ -871,11 +1165,13 @@ ctx.stroke();
 ctx.beginPath();
 
 ctx.moveTo(
-x+4,y-14
+x+4,
+y-14
 );
 
 ctx.lineTo(
-x+12,y-10
+x+12,
+y-10
 );
 
 ctx.stroke();
@@ -883,7 +1179,9 @@ ctx.stroke();
 }
 
 
-/* RØD BOLD */
+/* =========================
+   RØD BOLD
+========================= */
 
 function drawRedBall(ball){
 
@@ -904,11 +1202,11 @@ ctx.fill();
 }
 
 
-/* TENNISBOLD */
+/* =========================
+   TENNISBOLD
+========================= */
 
 function drawTennisBall(ball){
-
-/* Gul/grøn tennisbold */
 
 ctx.fillStyle="#c8e82b";
 
@@ -925,11 +1223,12 @@ Math.PI*2
 ctx.fill();
 
 
-/* HVIDE TENNISLINJER */
+/* TENNISLINJER */
 
 ctx.strokeStyle="white";
 
 ctx.lineWidth=2;
+
 
 ctx.beginPath();
 
@@ -959,7 +1258,174 @@ ctx.stroke();
 }
 
 
-/* TEGN SPILLET */
+/* =========================
+   FLYVENDE FUGL
+========================= */
+
+function drawFlyingBird(fb){
+
+const x=fb.x;
+
+const y=fb.y;
+
+const s=fb.size;
+
+
+/*
+Vingernes bevægelse
+*/
+
+const wing=
+Math.sin(fb.wingTime*12)*4;
+
+
+/* KROP */
+
+ctx.fillStyle="#333";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x,
+y,
+s*1.15,
+s*.65,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* HOVED */
+
+ctx.beginPath();
+
+ctx.arc(
+x+s*.9,
+y-s*.2,
+s*.55,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* NÆB */
+
+ctx.fillStyle="#f5b72b";
+
+ctx.beginPath();
+
+ctx.moveTo(
+x+s*1.35,
+y-s*.2
+);
+
+ctx.lineTo(
+x+s*2,
+y
+);
+
+ctx.lineTo(
+x+s*1.35,
+y+s*.2
+);
+
+ctx.closePath();
+
+ctx.fill();
+
+
+/* ØJE */
+
+ctx.fillStyle="white";
+
+ctx.beginPath();
+
+ctx.arc(
+x+s*1.05,
+y-s*.35,
+s*.18,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.arc(
+x+s*1.08,
+y-s*.35,
+s*.08,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* VENSTRE VINGE */
+
+ctx.fillStyle="#222";
+
+ctx.beginPath();
+
+ctx.moveTo(
+x-s*.3,
+y
+);
+
+ctx.lineTo(
+x-s*1.5,
+y-s*(1.1+wing*.08)
+);
+
+ctx.lineTo(
+x-s*.65,
+y+s*.15
+);
+
+ctx.closePath();
+
+ctx.fill();
+
+
+/* HØJRE VINGE */
+
+ctx.beginPath();
+
+ctx.moveTo(
+x+s*.1,
+y
+);
+
+ctx.lineTo(
+x-s*.7,
+y+s*(1.1+wing*.08)
+);
+
+ctx.lineTo(
+x+s*.45,
+y+s*.2
+);
+
+ctx.closePath();
+
+ctx.fill();
+
+}
+
+
+/* =========================
+   TEGN SPILLET
+========================= */
 
 function draw(){
 
@@ -967,8 +1433,12 @@ function draw(){
 
 let sky=
 ctx.createLinearGradient(
-0,0,0,H
+0,
+0,
+0,
+H
 );
+
 
 sky.addColorStop(
 0,
@@ -985,10 +1455,15 @@ sky.addColorStop(
 "#d8f5ff"
 );
 
+
 ctx.fillStyle=sky;
 
+
 ctx.fillRect(
-0,0,W,H
+0,
+0,
+W,
+H
 );
 
 
@@ -1027,7 +1502,9 @@ drawPipe(p);
 }
 
 
-/* BOLDE */
+/* =========================
+   RØDE + TENNISBOLDE
+========================= */
 
 for(let ball of balls){
 
@@ -1042,6 +1519,17 @@ if(ball.type==="tennis"){
 drawTennisBall(ball);
 
 }
+
+}
+
+
+/* =========================
+   FLYVENDE FUGLE
+========================= */
+
+for(let fb of flyingBirds){
+
+drawFlyingBird(fb);
 
 }
 
@@ -1075,7 +1563,7 @@ W,
 );
 
 
-/* EMOJI */
+/* CRAZY EMOJI */
 
 drawBird();
 
@@ -1088,9 +1576,13 @@ ctx.font="bold 34px Arial";
 
 ctx.textAlign="center";
 
-ctx.shadowColor="rgba(0,0,0,.35)";
+ctx.shadowColor=
+"rgba(0,0,0,.35)";
+
 ctx.shadowBlur=4;
+
 ctx.shadowOffsetY=2;
+
 
 ctx.fillText(
 score,
@@ -1098,24 +1590,30 @@ W/2,
 55
 );
 
+
 ctx.shadowBlur=0;
+
 ctx.shadowOffsetY=0;
 
 }
 
 
-/* GAME LOOP */
+/* =========================
+   GAME LOOP
+========================= */
 
 function loop(time){
 
 let dt=
 (time-lastTime)/1000;
 
+
 if(dt>0.035){
 
 dt=0.035;
 
 }
+
 
 lastTime=time;
 
@@ -1128,15 +1626,20 @@ requestAnimationFrame(loop);
 }
 
 
-/* START */
+/* =========================
+   INITIALISERING
+========================= */
 
 bird={
 
 x:W*.23,
+
 y:H*.45,
+
 velocity:0
 
 };
+
 
 requestAnimationFrame(loop);
 
