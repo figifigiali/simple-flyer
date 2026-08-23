@@ -6,7 +6,9 @@
 <title>Crazy Flyer</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+box-sizing:border-box
+}
 
 html,body{
 margin:0;
@@ -111,21 +113,28 @@ const speedLabel=document.getElementById("speedLabel");
 const buttons=document.querySelectorAll(".speedBtn");
 
 let W,H;
+
 let bird;
 
 let pipes=[];
 let balls=[];
 
 let score=0;
+
 let playing=false;
+
 let lastTime=0;
+
 let pipeTimer=0;
+
 let pipeCount=0;
 
 let speedLevel=3;
 
 
-/* HASTIGHEDER */
+/* =========================
+   HASTIGHEDER
+========================= */
 
 const speedValues={
 1:130,
@@ -136,7 +145,9 @@ const speedValues={
 };
 
 
-/* MELLEMRUM MELLEM STOLPER */
+/* =========================
+   MELLEMRUM MELLEM STOLPER
+========================= */
 
 const gapValues={
 1:260,
@@ -146,6 +157,10 @@ const gapValues={
 5:180
 };
 
+
+/* =========================
+   SKÆRM
+========================= */
 
 function resize(){
 
@@ -162,7 +177,9 @@ window.addEventListener("resize",resize);
 resize();
 
 
-/* VÆLG HASTIGHED */
+/* =========================
+   HASTIGHEDSVALG
+========================= */
 
 function selectSpeed(level){
 
@@ -185,6 +202,7 @@ buttons.forEach(button=>{
 button.addEventListener("pointerdown",function(e){
 
 e.preventDefault();
+
 e.stopPropagation();
 
 selectSpeed(
@@ -196,7 +214,9 @@ Number(button.dataset.speed)
 });
 
 
-/* START */
+/* =========================
+   START SPIL
+========================= */
 
 function startGame(){
 
@@ -207,11 +227,13 @@ velocity:0
 };
 
 pipes=[];
+
 balls=[];
 
 score=0;
 
 pipeTimer=0;
+
 pipeCount=0;
 
 playing=true;
@@ -219,12 +241,15 @@ playing=true;
 message.style.display="none";
 
 speedBox.style.display="none";
+
 speedLabel.style.display="none";
 
 }
 
 
-/* HOP */
+/* =========================
+   HOP
+========================= */
 
 function flap(){
 
@@ -239,24 +264,13 @@ bird.velocity=-450;
 }
 
 
-/* TOUCH */
+/* =========================
+   TOUCH
+========================= */
 
-window.addEventListener("pointerdown",function(e){
-
-if(e.target.classList.contains("speedBtn")){
-
-return;
-
-}
-
-e.preventDefault();
-
-flap();
-
-},{passive:false});
-
-
-window.addEventListener("touchstart",function(e){
+window.addEventListener(
+"pointerdown",
+function(e){
 
 if(e.target.classList.contains("speedBtn")){
 
@@ -268,12 +282,37 @@ e.preventDefault();
 
 flap();
 
-},{passive:false});
+},
+{passive:false}
+);
 
 
-/* TASTATUR */
+window.addEventListener(
+"touchstart",
+function(e){
 
-window.addEventListener("keydown",function(e){
+if(e.target.classList.contains("speedBtn")){
+
+return;
+
+}
+
+e.preventDefault();
+
+flap();
+
+},
+{passive:false}
+);
+
+
+/* =========================
+   TASTATUR
+========================= */
+
+window.addEventListener(
+"keydown",
+function(e){
 
 if(e.code==="Space"){
 
@@ -283,10 +322,13 @@ flap();
 
 }
 
-});
+}
+);
 
 
-/* NY STOLPE */
+/* =========================
+   NY STOLPE
+========================= */
 
 function addPipe(){
 
@@ -296,7 +338,10 @@ const min=70;
 
 const max=H-70-gap;
 
-const top=min+Math.random()*(max-min);
+const top=
+min+
+Math.random()*(max-min);
+
 
 const pipe={
 
@@ -312,6 +357,7 @@ passed:false
 
 };
 
+
 pipes.push(pipe);
 
 pipeCount++;
@@ -319,23 +365,74 @@ pipeCount++;
 
 /*
 BOLD PÅ HVER ANDEN STOLPE
-KUN PÅ NIVEAU 3, 4 OG 5
+
+NIVEAU 3, 4 OG 5
 */
 
 if(
+
 (speedLevel===3 ||
  speedLevel===4 ||
- speedLevel===5) &&
+ speedLevel===5)
+
+&&
+
 pipeCount%2===0
+
 ){
+
+/*
+BOLDEN PLACERES MIDT
+MELLEM STOLPE-PARRRENE.
+
+Den får sin egen x-position
+og falder derefter lodret.
+*/
+
+const pipeSpeed=speedValues[speedLevel];
+
+let pipeInterval=1.5;
+
+if(speedLevel===4){
+
+pipeInterval=1.25;
+
+}
+
+if(speedLevel===5){
+
+pipeInterval=1.05;
+
+}
+
+
+/*
+Afstanden som bolden skal placeres
+fra den aktuelle stolpe.
+
+Vi beregner hvor næste stolpe
+forventes at komme.
+*/
+
+const horizontalDistance=
+pipeSpeed*pipeInterval;
+
+
+/*
+Midt mellem stolperne
+*/
+
+const ballX=
+pipe.x+
+pipe.width+
+(horizontalDistance/2);
+
 
 balls.push({
 
-pipe:pipe,
+x:ballX,
 
-x:pipe.x+pipe.width/2,
-
-y:pipe.top+25,
+y:-20,
 
 radius:14
 
@@ -346,7 +443,9 @@ radius:14
 }
 
 
-/* GAME OVER */
+/* =========================
+   GAME OVER
+========================= */
 
 function endGame(){
 
@@ -358,12 +457,15 @@ message.innerHTML=
 message.style.display="flex";
 
 speedBox.style.display="flex";
+
 speedLabel.style.display="block";
 
 }
 
 
-/* OPDATERING */
+/* =========================
+   OPDATERING
+========================= */
 
 function update(dt){
 
@@ -374,14 +476,18 @@ return;
 }
 
 
-/* FUGL */
+/* =========================
+   FUGL
+========================= */
 
 bird.velocity+=1100*dt;
 
 bird.y+=bird.velocity*dt;
 
 
-/* AFSTAND MELLEM STOLPER */
+/* =========================
+   NY STOLPE
+========================= */
 
 pipeTimer+=dt;
 
@@ -408,10 +514,13 @@ addPipe();
 }
 
 
-const pipeSpeed=speedValues[speedLevel];
+const pipeSpeed=
+speedValues[speedLevel];
 
 
-/* STOLPER */
+/* =========================
+   STOLPER
+========================= */
 
 for(let p of pipes){
 
@@ -457,37 +566,35 @@ endGame();
 }
 
 
-/* BOLDE */
+/* =========================
+   RØDE BOLDE
+========================= */
 
 for(let ball of balls){
 
 /*
-Bolden følger midten af åbningen.
+BOLDEN FALDER LODRET.
+
+X ÆNDRES IKKE.
 */
 
-ball.x=
-ball.pipe.x+
-ball.pipe.width/2;
+ball.y+=320*dt;
 
 
-/*
-SAMME FALLHASTIGHED
-PÅ NIVEAU 3, 4 OG 5
-*/
+/* KOLLISION */
 
-const fallSpeed=320;
+const dx=
+bird.x-ball.x;
 
-ball.y+=fallSpeed*dt;
+const dy=
+bird.y-ball.y;
 
-
-/* KOLLISION MED BOLD */
-
-const dx=bird.x-ball.x;
-const dy=bird.y-ball.y;
-
-const distance=Math.sqrt(
-dx*dx+dy*dy
+const distance=
+Math.sqrt(
+dx*dx+
+dy*dy
 );
+
 
 if(
 distance<
@@ -501,21 +608,27 @@ endGame();
 }
 
 
-/* FJERN GAMLE STOLPER */
+/* =========================
+   FJERN GAMLE STOLPER
+========================= */
 
 pipes=pipes.filter(
 p=>p.x+p.width>0
 );
 
 
-/* FJERN BOLDE */
+/* =========================
+   FJERN BOLDE
+========================= */
 
 balls=balls.filter(
 ball=>ball.y-ball.radius<H
 );
 
 
-/* TOP / BUND */
+/* =========================
+   TOP / BUND
+========================= */
 
 if(
 
@@ -532,9 +645,17 @@ endGame();
 }
 
 
-/* AFRUNDET REKTANGEL */
+/* =========================
+   AFRUNDET REKTANGEL
+========================= */
 
-function roundedRect(x,y,w,h,r){
+function roundedRect(
+x,
+y,
+w,
+h,
+r
+){
 
 ctx.beginPath();
 
@@ -549,11 +670,18 @@ r
 }
 
 
-/* SKYER */
+/* =========================
+   SKYER
+========================= */
 
-function drawCloud(x,y,size){
+function drawCloud(
+x,
+y,
+size
+){
 
-ctx.fillStyle="rgba(255,255,255,.75)";
+ctx.fillStyle=
+"rgba(255,255,255,.75)";
 
 ctx.beginPath();
 
@@ -586,37 +714,59 @@ ctx.fill();
 }
 
 
-/* BY */
+/* =========================
+   BY
+========================= */
 
 function drawCity(){
 
-ctx.fillStyle="rgba(80,170,210,.30)";
+ctx.fillStyle=
+"rgba(80,170,210,.30)";
+
 
 const buildings=[
 
 [0,.86,.07,.14],
+
 [.07,.82,.09,.18],
+
 [.16,.88,.06,.12],
+
 [.22,.80,.10,.20],
+
 [.32,.85,.07,.15],
+
 [.39,.78,.09,.22],
+
 [.48,.86,.06,.14],
+
 [.54,.81,.10,.19],
+
 [.64,.86,.07,.14],
+
 [.71,.79,.09,.21],
+
 [.80,.84,.07,.16],
+
 [.87,.76,.10,.24],
+
 [.97,.84,.06,.16]
 
 ];
 
+
 for(let b of buildings){
 
 ctx.fillRect(
+
 b[0]*W,
+
 b[1]*H,
+
 b[2]*W,
+
 b[3]*H
+
 );
 
 }
@@ -624,13 +774,19 @@ b[3]*H
 }
 
 
-/* BUSKE */
+/* =========================
+   BUSKE
+========================= */
 
 function drawBushes(){
 
 ctx.fillStyle="#48b84f";
 
-for(let x=0;x<W;x+=35){
+for(
+let x=0;
+x<W;
+x+=35
+){
 
 ctx.beginPath();
 
@@ -649,11 +805,14 @@ ctx.fill();
 }
 
 
-/* STOLPER */
+/* =========================
+   STOLPER
+========================= */
 
 function drawPipe(p){
 
 const capHeight=20;
+
 const capExtra=8;
 
 ctx.fillStyle="#45a844";
@@ -662,21 +821,32 @@ ctx.fillStyle="#45a844";
 /* ØVERSTE STOLPE */
 
 ctx.fillRect(
+
 p.x,
+
 0,
+
 p.width,
+
 p.top
+
 );
 
 
 /* ØVERSTE HÆTTE */
 
 roundedRect(
+
 p.x-capExtra,
+
 p.top-capHeight,
+
 p.width+capExtra*2,
+
 capHeight,
+
 10
+
 );
 
 ctx.fill();
@@ -685,21 +855,32 @@ ctx.fill();
 /* NEDERSTE STOLPE */
 
 ctx.fillRect(
+
 p.x,
+
 p.top+p.gap,
+
 p.width,
+
 H-(p.top+p.gap)-45
+
 );
 
 
 /* NEDERSTE HÆTTE */
 
 roundedRect(
+
 p.x-capExtra,
+
 p.top+p.gap,
+
 p.width+capExtra*2,
+
 capHeight,
+
 10
+
 );
 
 ctx.fill();
@@ -707,12 +888,16 @@ ctx.fill();
 }
 
 
-/* CRAZY EMOJI */
+/* =========================
+   CRAZY EMOJI
+========================= */
 
 function drawBird(){
 
 const x=bird.x;
+
 const y=bird.y;
+
 const r=17;
 
 
@@ -780,6 +965,7 @@ Math.PI*2
 );
 
 ctx.fill();
+
 
 ctx.beginPath();
 
@@ -870,7 +1056,9 @@ ctx.stroke();
 }
 
 
-/* TEGN ALT */
+/* =========================
+   TEGN SPILLET
+========================= */
 
 function draw(){
 
@@ -944,7 +1132,9 @@ drawPipe(p);
 }
 
 
-/* BOLDE */
+/* =========================
+   RØDE BOLDE
+========================= */
 
 for(let ball of balls){
 
@@ -1007,8 +1197,11 @@ ctx.font="bold 34px Arial";
 
 ctx.textAlign="center";
 
-ctx.shadowColor="rgba(0,0,0,.35)";
+ctx.shadowColor=
+"rgba(0,0,0,.35)";
+
 ctx.shadowBlur=4;
+
 ctx.shadowOffsetY=2;
 
 ctx.fillText(
@@ -1018,12 +1211,15 @@ W/2,
 );
 
 ctx.shadowBlur=0;
+
 ctx.shadowOffsetY=0;
 
 }
 
 
-/* GAME LOOP */
+/* =========================
+   GAME LOOP
+========================= */
 
 function loop(time){
 
@@ -1047,13 +1243,20 @@ requestAnimationFrame(loop);
 }
 
 
-/* START */
+/* =========================
+   START
+========================= */
 
 bird={
+
 x:W*.23,
+
 y:H*.45,
+
 velocity:0
+
 };
+
 
 requestAnimationFrame(loop);
 
