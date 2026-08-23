@@ -44,6 +44,49 @@ text-shadow:0 3px 5px #555;
 pointer-events:none
 }
 
+/* AVATAR VALG */
+
+#avatarBox{
+position:fixed;
+left:50%;
+top:42%;
+transform:translate(-50%,-50%);
+display:flex;
+gap:12px;
+pointer-events:auto;
+}
+
+.avatarBtn{
+width:72px;
+height:72px;
+border:3px solid white;
+border-radius:18px;
+background:rgba(0,0,0,.20);
+font-size:38px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.avatarBtn.selected{
+background:white;
+transform:scale(1.08);
+}
+
+#avatarLabel{
+position:fixed;
+left:50%;
+top:34%;
+transform:translate(-50%,-50%);
+color:white;
+font-size:17px;
+font-weight:bold;
+text-shadow:0 2px 4px #555;
+pointer-events:none;
+}
+
+/* HASTIGHED */
+
 #speed{
 position:fixed;
 left:50%;
@@ -91,7 +134,17 @@ pointer-events:none
 
 <canvas id="game"></canvas>
 
-<div id="message">VÆLG HASTIGHED</div>
+<div id="message">VÆLG AVATAR OG HASTIGHED</div>
+
+<div id="avatarLabel">VÆLG AVATAR</div>
+
+<div id="avatarBox">
+
+<button class="avatarBtn selected" data-avatar="crazy">🤪</button>
+<button class="avatarBtn" data-avatar="cool">😎</button>
+<button class="avatarBtn" data-avatar="alien">👽</button>
+
+</div>
 
 <div id="speedLabel">HASTIGHED</div>
 
@@ -105,18 +158,21 @@ pointer-events:none
 
 </div>
 
-
 <script>
 
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
 const message=document.getElementById("message");
+
 const speedBox=document.getElementById("speed");
 const speedLabel=document.getElementById("speedLabel");
 
-const buttons=document.querySelectorAll(".speedBtn");
+const avatarBox=document.getElementById("avatarBox");
+const avatarLabel=document.getElementById("avatarLabel");
 
+const buttons=document.querySelectorAll(".speedBtn");
+const avatarButtons=document.querySelectorAll(".avatarBtn");
 
 let W,H;
 
@@ -139,6 +195,8 @@ let flyingBirdTimer=0;
 let nextFlyingBirdTime=4;
 
 let speedLevel=3;
+
+let selectedAvatar="crazy";
 
 
 /* =========================
@@ -194,6 +252,44 @@ resize();
 
 
 /* =========================
+   VÆLG AVATAR
+========================= */
+
+function selectAvatar(avatar){
+
+selectedAvatar=avatar;
+
+avatarButtons.forEach(button=>{
+
+button.classList.toggle(
+"selected",
+button.dataset.avatar===avatar
+);
+
+});
+
+}
+
+avatarButtons.forEach(button=>{
+
+button.addEventListener(
+"pointerdown",
+function(e){
+
+e.preventDefault();
+e.stopPropagation();
+
+selectAvatar(
+button.dataset.avatar
+);
+
+}
+);
+
+});
+
+
+/* =========================
    VÆLG HASTIGHED
 ========================= */
 
@@ -211,7 +307,6 @@ Number(button.dataset.speed)===level
 });
 
 }
-
 
 buttons.forEach(button=>{
 
@@ -266,8 +361,10 @@ playing=true;
 message.style.display="none";
 
 speedBox.style.display="none";
-
 speedLabel.style.display="none";
+
+avatarBox.style.display="none";
+avatarLabel.style.display="none";
 
 }
 
@@ -298,7 +395,8 @@ window.addEventListener(
 function(e){
 
 if(
-e.target.classList.contains("speedBtn")
+e.target.classList.contains("speedBtn") ||
+e.target.classList.contains("avatarBtn")
 ){
 
 return;
@@ -319,7 +417,8 @@ window.addEventListener(
 function(e){
 
 if(
-e.target.classList.contains("speedBtn")
+e.target.classList.contains("speedBtn") ||
+e.target.classList.contains("avatarBtn")
 ){
 
 return;
@@ -370,7 +469,6 @@ const top=
 min+
 Math.random()*(max-min);
 
-
 const pipe={
 
 x:W+20,
@@ -385,15 +483,12 @@ passed:false
 
 };
 
-
 pipes.push(pipe);
 
 pipeCount++;
 
 
-/* =========================
-   RØD BOLD
-========================= */
+/* RØD BOLD */
 
 if(
 
@@ -422,9 +517,7 @@ radius:14
 }
 
 
-/* =========================
-   TENNISBOLD
-========================= */
+/* TENNISBOLD */
 
 if(
 
@@ -469,11 +562,9 @@ customY
 80+
 Math.random()*(H-180);
 
-
 const size=
 12+
 Math.random()*4;
-
 
 flyingBirds.push({
 
@@ -508,8 +599,10 @@ message.innerHTML=
 message.style.display="flex";
 
 speedBox.style.display="flex";
-
 speedLabel.style.display="block";
+
+avatarBox.style.display="flex";
+avatarLabel.style.display="block";
 
 }
 
@@ -527,9 +620,7 @@ return;
 }
 
 
-/* =========================
-   CRAZY FLYER
-========================= */
+/* CRAZY FLYER */
 
 bird.velocity+=1100*dt;
 
@@ -544,20 +635,17 @@ pipeTimer+=dt;
 
 let pipeInterval=1.5;
 
-
 if(speedLevel===4){
 
 pipeInterval=1.15;
 
 }
 
-
 if(speedLevel===5){
 
 pipeInterval=1.25;
 
 }
-
 
 if(pipeTimer>pipeInterval){
 
@@ -566,7 +654,6 @@ pipeTimer=0;
 addPipe();
 
 }
-
 
 const pipeSpeed=
 speedValues[speedLevel];
@@ -580,15 +667,9 @@ for(let p of pipes){
 
 p.x-=pipeSpeed*dt;
 
-
-/* SCORE */
-
 if(
-
 !p.passed &&
-
 p.x+p.width<bird.x
-
 ){
 
 p.passed=true;
@@ -596,9 +677,6 @@ p.passed=true;
 score++;
 
 }
-
-
-/* KOLLISION MED STOLPE */
 
 if(
 
@@ -631,7 +709,6 @@ for(let ball of balls){
 
 ball.y+=320*dt;
 
-
 const dx=
 bird.x-ball.x;
 
@@ -644,12 +721,9 @@ dx*dx+
 dy*dy
 );
 
-
 if(
-
 distance<
 17+ball.radius
-
 ){
 
 endGame();
@@ -665,11 +739,6 @@ endGame();
 
 flyingBirdTimer+=dt;
 
-
-/*
-NY FUGLEBØLGE
-*/
-
 if(
 flyingBirdTimer>
 nextFlyingBirdTime
@@ -682,12 +751,7 @@ nextFlyingBirdTime=
 Math.random()*3;
 
 
-/*
-================================
-NIVEAU 4 OG 5
-2 FUGLE
-================================
-*/
+/* NIVEAU 4 OG 5 = 2 FUGLE */
 
 if(
 
@@ -696,23 +760,11 @@ speedLevel===5
 
 ){
 
-/*
-FØRSTE FUGL
-*/
-
 const y1=
 80+
 Math.random()*(H-260);
 
 addFlyingBird(y1);
-
-
-/*
-ANDEN FUGL
-
-Kommer lidt senere
-og i en anden højde.
-*/
 
 setTimeout(function(){
 
@@ -722,12 +774,10 @@ return;
 
 }
 
-
 let y2=
 y1+
 100+
 Math.random()*100;
-
 
 if(y2>H-100){
 
@@ -735,21 +785,14 @@ y2=H-100;
 
 }
 
-
 addFlyingBird(y2);
 
 },700);
 
-
 }else{
 
 
-/*
-================================
-NIVEAU 1-3
-1 FUGL
-================================
-*/
+/* NIVEAU 1-3 = 1 FUGL */
 
 if(
 flyingBirds.length<1
@@ -764,18 +807,13 @@ addFlyingBird();
 }
 
 
-/* =========================
-   FLYT FUGLE
-========================= */
+/* FLYT FUGLE */
 
 for(let fb of flyingBirds){
 
 fb.x-=fb.speed*dt;
 
 fb.wingTime+=dt;
-
-
-/* KOLLISION */
 
 const dx=
 bird.x-fb.x;
@@ -789,12 +827,9 @@ dx*dx+
 dy*dy
 );
 
-
 if(
-
 distance<
 17+fb.size
-
 ){
 
 endGame();
@@ -804,9 +839,7 @@ endGame();
 }
 
 
-/* =========================
-   FJERN GAMLE FUGLE
-========================= */
+/* FJERN FUGLE */
 
 flyingBirds=
 flyingBirds.filter(
@@ -814,9 +847,7 @@ fb=>fb.x+40>0
 );
 
 
-/* =========================
-   FJERN GAMLE STOLPER
-========================= */
+/* FJERN STOLPER */
 
 pipes=
 pipes.filter(
@@ -824,9 +855,7 @@ p=>p.x+p.width>0
 );
 
 
-/* =========================
-   FJERN GAMLE BOLDE
-========================= */
+/* FJERN BOLDE */
 
 balls=
 balls.filter(
@@ -834,9 +863,7 @@ ball=>ball.y-ball.radius<H
 );
 
 
-/* =========================
-   TOP / BUND
-========================= */
+/* TOP / BUND */
 
 if(
 
@@ -858,21 +885,13 @@ endGame();
 ========================= */
 
 function roundedRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 ){
 
 ctx.beginPath();
 
 ctx.roundRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 );
 
 }
@@ -883,9 +902,7 @@ r
 ========================= */
 
 function drawCloud(
-x,
-y,
-size
+x,y,size
 ){
 
 ctx.fillStyle=
@@ -931,7 +948,6 @@ function drawCity(){
 ctx.fillStyle=
 "rgba(80,170,210,.30)";
 
-
 const buildings=[
 
 [0,.86,.07,.14],
@@ -949,7 +965,6 @@ const buildings=[
 [.97,.84,.06,.16]
 
 ];
-
 
 for(let b of buildings){
 
@@ -974,7 +989,6 @@ b[3]*H
 function drawBushes(){
 
 ctx.fillStyle="#48b84f";
-
 
 for(
 let x=0;
@@ -1006,61 +1020,40 @@ ctx.fill();
 function drawPipe(p){
 
 const capHeight=20;
-
 const capExtra=8;
 
 ctx.fillStyle="#45a844";
 
-
-/* ØVERSTE STOLPE */
-
 ctx.fillRect(
-
 p.x,
 0,
 p.width,
 p.top
-
 );
 
-
-/* ØVERSTE AFRUNDEDE HÆTTE */
-
 roundedRect(
-
 p.x-capExtra,
 p.top-capHeight,
 p.width+capExtra*2,
 capHeight,
 10
-
 );
 
 ctx.fill();
 
-
-/* NEDERSTE STOLPE */
-
 ctx.fillRect(
-
 p.x,
 p.top+p.gap,
 p.width,
 H-(p.top+p.gap)-45
-
 );
 
-
-/* NEDERSTE AFRUNDEDE HÆTTE */
-
 roundedRect(
-
 p.x-capExtra,
 p.top+p.gap,
 p.width+capExtra*2,
 capHeight,
 10
-
 );
 
 ctx.fill();
@@ -1069,28 +1062,28 @@ ctx.fill();
 
 
 /* =========================
-   CRAZY EMOJI
+   AVATAR
 ========================= */
 
 function drawBird(){
 
 const x=bird.x;
-
 const y=bird.y;
-
 const r=17;
 
 
-/* HOVED */
+/* =========================
+   CRAZY EMOJI
+========================= */
+
+if(selectedAvatar==="crazy"){
 
 ctx.fillStyle="#ffd21f";
 
 ctx.beginPath();
 
 ctx.arc(
-x,
-y,
-r,
+x,y,r,
 0,
 Math.PI*2
 );
@@ -1098,15 +1091,14 @@ Math.PI*2
 ctx.fill();
 
 
-/* VENSTRE ØJE */
+/* ØJNE */
 
 ctx.fillStyle="white";
 
 ctx.beginPath();
 
 ctx.arc(
-x-6,
-y-5,
+x-6,y-5,
 6,
 0,
 Math.PI*2
@@ -1114,14 +1106,10 @@ Math.PI*2
 
 ctx.fill();
 
-
-/* HØJRE ØJE */
-
 ctx.beginPath();
 
 ctx.arc(
-x+6,
-y-3,
+x+6,y-3,
 6,
 0,
 Math.PI*2
@@ -1137,21 +1125,18 @@ ctx.fillStyle="#111";
 ctx.beginPath();
 
 ctx.arc(
-x-5,
-y-5,
+x-5,y-5,
 2.7,
 0,
 Math.PI*2
 );
 
 ctx.fill();
-
 
 ctx.beginPath();
 
 ctx.arc(
-x+7,
-y-2,
+x+7,y-2,
 2.7,
 0,
 Math.PI*2
@@ -1160,17 +1145,13 @@ Math.PI*2
 ctx.fill();
 
 
-/* CRAZY MUND */
-
-ctx.fillStyle="#111";
+/* MUND */
 
 ctx.beginPath();
 
 ctx.ellipse(
-x+1,
-y+7,
-8,
-5,
+x+1,y+7,
+8,5,
 0,
 0,
 Math.PI*2
@@ -1186,10 +1167,8 @@ ctx.fillStyle="#f04455";
 ctx.beginPath();
 
 ctx.ellipse(
-x+2,
-y+11,
-4,
-6,
+x+2,y+11,
+4,6,
 0,
 0,
 Math.PI*2
@@ -1201,38 +1180,274 @@ ctx.fill();
 /* ØJENBRYN */
 
 ctx.strokeStyle="#111";
-
 ctx.lineWidth=2.5;
-
 
 ctx.beginPath();
 
 ctx.moveTo(
-x-12,
-y-13
+x-12,y-13
 );
 
 ctx.lineTo(
-x-5,
-y-15
+x-5,y-15
+);
+
+ctx.stroke();
+
+ctx.beginPath();
+
+ctx.moveTo(
+x+4,y-14
+);
+
+ctx.lineTo(
+x+12,y-10
+);
+
+ctx.stroke();
+
+}
+
+
+/* =========================
+   COOL
+========================= */
+
+if(selectedAvatar==="cool"){
+
+/* HOVED */
+
+ctx.fillStyle="#ffd21f";
+
+ctx.beginPath();
+
+ctx.arc(
+x,y,r,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* SOLBRILLER */
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.roundRect(
+x-14,
+y-8,
+11,
+8,
+3
+);
+
+ctx.fill();
+
+ctx.beginPath();
+
+ctx.roundRect(
+x+3,
+y-8,
+11,
+8,
+3
+);
+
+ctx.fill();
+
+
+/* BRILLESTANG */
+
+ctx.fillRect(
+x-3,
+y-5,
+6,
+2
+);
+
+
+/* SMIL */
+
+ctx.strokeStyle="#111";
+
+ctx.lineWidth=2;
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y+3,
+8,
+0,
+Math.PI
 );
 
 ctx.stroke();
 
 
+/* HUE */
+
+ctx.fillStyle="#2878d0";
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y-7,
+15,
+Math.PI,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+/* =========================
+   ALIEN
+========================= */
+
+if(selectedAvatar==="alien"){
+
+/* HOVED */
+
+ctx.fillStyle="#78e35c";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x,
+y,
+17,
+20,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* ØJNE */
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x-6,
+y-4,
+4,
+7,
+-.2,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.beginPath();
+
+ctx.ellipse(
+x+6,
+y-4,
+4,
+7,
+.2,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+/* MUND */
+
+ctx.strokeStyle="#111";
+
+ctx.lineWidth=2;
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y+8,
+5,
+0,
+Math.PI
+);
+
+ctx.stroke();
+
+
+/* ANTENNER */
+
+ctx.strokeStyle="#78e35c";
+
+ctx.lineWidth=3;
+
 ctx.beginPath();
 
 ctx.moveTo(
-x+4,
-y-14
+x-7,
+y-17
+);
+
+ctx.lineTo(
+x-12,
+y-26
+);
+
+ctx.stroke();
+
+ctx.beginPath();
+
+ctx.moveTo(
+x+7,
+y-17
 );
 
 ctx.lineTo(
 x+12,
-y-10
+y-26
 );
 
 ctx.stroke();
+
+
+/* PRIKKER */
+
+ctx.fillStyle="#ffdf32";
+
+ctx.beginPath();
+
+ctx.arc(
+x-12,
+y-27,
+3,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.beginPath();
+
+ctx.arc(
+x+12,
+y-27,
+3,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
 
 }
 
@@ -1280,13 +1495,9 @@ Math.PI*2
 
 ctx.fill();
 
-
-/* TENNISLINJER */
-
 ctx.strokeStyle="white";
 
 ctx.lineWidth=2;
-
 
 ctx.beginPath();
 
@@ -1299,7 +1510,6 @@ Math.PI/2
 );
 
 ctx.stroke();
-
 
 ctx.beginPath();
 
@@ -1323,9 +1533,7 @@ ctx.stroke();
 function drawFlyingBird(fb){
 
 const x=fb.x;
-
 const y=fb.y;
-
 const s=fb.size;
 
 const wing=
@@ -1408,7 +1616,6 @@ Math.PI*2
 
 ctx.fill();
 
-
 ctx.fillStyle="#111";
 
 ctx.beginPath();
@@ -1482,16 +1689,10 @@ ctx.fill();
 
 function draw(){
 
-/* HIMMEL */
-
 let sky=
 ctx.createLinearGradient(
-0,
-0,
-0,
-H
+0,0,0,H
 );
-
 
 sky.addColorStop(
 0,
@@ -1508,15 +1709,10 @@ sky.addColorStop(
 "#d8f5ff"
 );
 
-
 ctx.fillStyle=sky;
 
-
 ctx.fillRect(
-0,
-0,
-W,
-H
+0,0,W,H
 );
 
 
@@ -1555,7 +1751,7 @@ drawPipe(p);
 }
 
 
-/* RØDE + TENNISBOLDE */
+/* BOLDE */
 
 for(let ball of balls){
 
@@ -1612,7 +1808,7 @@ W,
 );
 
 
-/* CRAZY EMOJI */
+/* AVATAR */
 
 drawBird();
 
@@ -1632,16 +1828,13 @@ ctx.shadowBlur=4;
 
 ctx.shadowOffsetY=2;
 
-
 ctx.fillText(
 score,
 W/2,
 55
 );
 
-
 ctx.shadowBlur=0;
-
 ctx.shadowOffsetY=0;
 
 }
@@ -1656,13 +1849,11 @@ function loop(time){
 let dt=
 (time-lastTime)/1000;
 
-
 if(dt>0.035){
 
 dt=0.035;
 
 }
-
 
 lastTime=time;
 
@@ -1682,13 +1873,10 @@ requestAnimationFrame(loop);
 bird={
 
 x:W*.23,
-
 y:H*.45,
-
 velocity:0
 
 };
-
 
 requestAnimationFrame(loop);
 
