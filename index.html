@@ -6,10 +6,7 @@
 <title>Crazy Flyer</title>
 
 <style>
-
-*{
-box-sizing:border-box
-}
+*{box-sizing:border-box}
 
 html,body{
 margin:0;
@@ -83,7 +80,6 @@ font-weight:bold;
 text-shadow:0 2px 4px #555;
 pointer-events:none
 }
-
 </style>
 </head>
 
@@ -105,7 +101,6 @@ pointer-events:none
 
 </div>
 
-
 <script>
 
 const canvas=document.getElementById("game");
@@ -116,7 +111,6 @@ const speedBox=document.getElementById("speed");
 const speedLabel=document.getElementById("speedLabel");
 
 const buttons=document.querySelectorAll(".speedBtn");
-
 
 let W,H;
 
@@ -134,18 +128,15 @@ let lastTime=0;
 let pipeTimer=0;
 let pipeCount=0;
 
-
-/* TIMER TIL FLYVENDE FUGL */
-
 let flyingBirdTimer=0;
-
 let nextFlyingBirdTime=4;
-
-
-/* HASTIGHED */
 
 let speedLevel=3;
 
+
+/* =========================
+   HASTIGHEDER
+========================= */
 
 const speedValues={
 
@@ -158,7 +149,9 @@ const speedValues={
 };
 
 
-/* MELLEMRUM MELLEM STOLPER */
+/* =========================
+   MELLEMRUM MELLEM STOLPER
+========================= */
 
 const gapValues={
 
@@ -253,12 +246,6 @@ pipeTimer=0;
 pipeCount=0;
 
 flyingBirdTimer=0;
-
-
-/*
-Første flyvende fugl kommer
-efter et tilfældigt tidsrum.
-*/
 
 nextFlyingBirdTime=
 3+
@@ -394,13 +381,7 @@ pipes.push(pipe);
 pipeCount++;
 
 
-/*
-=================================
-RØD BOLD
-NIVEAU 3, 4 OG 5
-HVER ANDEN STOLPE
-=================================
-*/
+/* RØD BOLD */
 
 if(
 
@@ -429,13 +410,7 @@ radius:14
 }
 
 
-/*
-=================================
-TENNISBOLD
-NIVEAU 3, 4 OG 5
-HVER ANDEN STOLPE
-=================================
-*/
+/* TENNISBOLD */
 
 if(
 
@@ -472,23 +447,13 @@ radius:13
 
 function addFlyingBird(){
 
-/*
-Fuglen kommer fra højre.
-*/
-
 const birdY=
 80+
 Math.random()*(H-180);
 
-
-/*
-Tilfældig størrelse.
-*/
-
 const size=
 12+
 Math.random()*4;
-
 
 flyingBirds.push({
 
@@ -542,9 +507,7 @@ return;
 }
 
 
-/* =========================
-   CRAZY FLYER
-========================= */
+/* CRAZY FLYER */
 
 bird.velocity+=1100*dt;
 
@@ -559,20 +522,17 @@ pipeTimer+=dt;
 
 let pipeInterval=1.5;
 
-
 if(speedLevel===4){
 
 pipeInterval=1.25;
 
 }
 
-
 if(speedLevel===5){
 
 pipeInterval=1.05;
 
 }
-
 
 if(pipeTimer>pipeInterval){
 
@@ -596,14 +556,9 @@ for(let p of pipes){
 p.x-=pipeSpeed*dt;
 
 
-/* SCORE */
-
 if(
-
 !p.passed &&
-
 p.x+p.width<bird.x
-
 ){
 
 p.passed=true;
@@ -613,7 +568,7 @@ score++;
 }
 
 
-/* KOLLISION MED STOLPE */
+/* KOLLISION */
 
 if(
 
@@ -639,19 +594,12 @@ endGame();
 
 
 /* =========================
-   RØDE BOLDE + TENNISBOLDE
+   RØDE + TENNISBOLDE
 ========================= */
 
 for(let ball of balls){
 
-/*
-Alle bolde falder lodret.
-*/
-
 ball.y+=320*dt;
-
-
-/* KOLLISION */
 
 const dx=
 bird.x-ball.x;
@@ -665,12 +613,9 @@ dx*dx+
 dy*dy
 );
 
-
 if(
-
 distance<
 17+ball.radius
-
 ){
 
 endGame();
@@ -688,8 +633,7 @@ flyingBirdTimer+=dt;
 
 
 /*
-Når timeren når det tilfældige
-tidspunkt, kommer en fugl.
+NY FUGL HVER 3-6 SEKUNDER
 */
 
 if(
@@ -700,18 +644,47 @@ nextFlyingBirdTime
 flyingBirdTimer=0;
 
 nextFlyingBirdTime=
-4+
-Math.random()*5;
+3+
+Math.random()*3;
+
+
+/*
+NIVEAU 4 OG 5:
+MAKS 2 FUGLE
+
+NIVEAU 1-3:
+MAKS 1 FUGL
+*/
+
+if(
+speedLevel===4 ||
+speedLevel===5
+){
+
+if(
+flyingBirds.length<2
+){
 
 addFlyingBird();
 
 }
 
+}else{
 
-/*
-Flyt fuglene fra højre
-mod venstre.
-*/
+if(
+flyingBirds.length<1
+){
+
+addFlyingBird();
+
+}
+
+}
+
+}
+
+
+/* FLYT FUGLE */
 
 for(let fb of flyingBirds){
 
@@ -720,9 +693,7 @@ fb.x-=fb.speed*dt;
 fb.wingTime+=dt;
 
 
-/* =========================
-   KOLLISION MED FUGL
-========================= */
+/* KOLLISION */
 
 const dx=
 bird.x-fb.x;
@@ -736,7 +707,6 @@ dx*dx+
 dy*dy
 );
 
-
 if(
 distance<
 17+fb.size
@@ -749,8 +719,7 @@ endGame();
 }
 
 
-/* Fjern fugle der er ude
-af venstre side */
+/* FJERN GAMLE FUGLE */
 
 flyingBirds=
 flyingBirds.filter(
@@ -758,27 +727,23 @@ fb=>fb.x+40>0
 );
 
 
-/* =========================
-   FJERN GAMLE STOLPER
-========================= */
+/* FJERN GAMLE STOLPER */
 
-pipes=pipes.filter(
+pipes=
+pipes.filter(
 p=>p.x+p.width>0
 );
 
 
-/* =========================
-   FJERN GAMLE BOLDE
-========================= */
+/* FJERN GAMLE BOLDE */
 
-balls=balls.filter(
+balls=
+balls.filter(
 ball=>ball.y-ball.radius<H
 );
 
 
-/* =========================
-   TOP / BUND
-========================= */
+/* TOP / BUND */
 
 if(
 
@@ -800,21 +765,13 @@ endGame();
 ========================= */
 
 function roundedRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 ){
 
 ctx.beginPath();
 
 ctx.roundRect(
-x,
-y,
-w,
-h,
-r
+x,y,w,h,r
 );
 
 }
@@ -825,9 +782,7 @@ r
 ========================= */
 
 function drawCloud(
-x,
-y,
-size
+x,y,size
 ){
 
 ctx.fillStyle=
@@ -873,7 +828,6 @@ function drawCity(){
 ctx.fillStyle=
 "rgba(80,170,210,.30)";
 
-
 const buildings=[
 
 [0,.86,.07,.14],
@@ -891,7 +845,6 @@ const buildings=[
 [.97,.84,.06,.16]
 
 ];
-
 
 for(let b of buildings){
 
@@ -916,7 +869,6 @@ b[3]*H
 function drawBushes(){
 
 ctx.fillStyle="#48b84f";
-
 
 for(
 let x=0;
@@ -954,7 +906,7 @@ const capExtra=8;
 ctx.fillStyle="#45a844";
 
 
-/* ØVERSTE STOLPE */
+/* ØVERSTE */
 
 ctx.fillRect(
 
@@ -966,7 +918,7 @@ p.top
 );
 
 
-/* ØVERSTE AFRUNDEDE HÆTTE */
+/* ØVERSTE HÆTTE */
 
 roundedRect(
 
@@ -981,7 +933,7 @@ capHeight,
 ctx.fill();
 
 
-/* NEDERSTE STOLPE */
+/* NEDERSTE */
 
 ctx.fillRect(
 
@@ -993,7 +945,7 @@ H-(p.top+p.gap)-45
 );
 
 
-/* NEDERSTE AFRUNDEDE HÆTTE */
+/* NEDERSTE HÆTTE */
 
 roundedRect(
 
@@ -1017,9 +969,7 @@ ctx.fill();
 function drawBird(){
 
 const x=bird.x;
-
 const y=bird.y;
-
 const r=17;
 
 
@@ -1030,9 +980,7 @@ ctx.fillStyle="#ffd21f";
 ctx.beginPath();
 
 ctx.arc(
-x,
-y,
-r,
+x,y,r,
 0,
 Math.PI*2
 );
@@ -1047,8 +995,7 @@ ctx.fillStyle="white";
 ctx.beginPath();
 
 ctx.arc(
-x-6,
-y-5,
+x-6,y-5,
 6,
 0,
 Math.PI*2
@@ -1062,8 +1009,7 @@ ctx.fill();
 ctx.beginPath();
 
 ctx.arc(
-x+6,
-y-3,
+x+6,y-3,
 6,
 0,
 Math.PI*2
@@ -1079,21 +1025,18 @@ ctx.fillStyle="#111";
 ctx.beginPath();
 
 ctx.arc(
-x-5,
-y-5,
+x-5,y-5,
 2.7,
 0,
 Math.PI*2
 );
 
 ctx.fill();
-
 
 ctx.beginPath();
 
 ctx.arc(
-x+7,
-y-2,
+x+7,y-2,
 2.7,
 0,
 Math.PI*2
@@ -1102,17 +1045,15 @@ Math.PI*2
 ctx.fill();
 
 
-/* CRAZY MUND */
+/* MUND */
 
 ctx.fillStyle="#111";
 
 ctx.beginPath();
 
 ctx.ellipse(
-x+1,
-y+7,
-8,
-5,
+x+1,y+7,
+8,5,
 0,
 0,
 Math.PI*2
@@ -1128,10 +1069,8 @@ ctx.fillStyle="#f04455";
 ctx.beginPath();
 
 ctx.ellipse(
-x+2,
-y+11,
-4,
-6,
+x+2,y+11,
+4,6,
 0,
 0,
 Math.PI*2
@@ -1146,32 +1085,26 @@ ctx.strokeStyle="#111";
 
 ctx.lineWidth=2.5;
 
-
 ctx.beginPath();
 
 ctx.moveTo(
-x-12,
-y-13
+x-12,y-13
 );
 
 ctx.lineTo(
-x-5,
-y-15
+x-5,y-15
 );
 
 ctx.stroke();
 
-
 ctx.beginPath();
 
 ctx.moveTo(
-x+4,
-y-14
+x+4,y-14
 );
 
 ctx.lineTo(
-x+12,
-y-10
+x+12,y-10
 );
 
 ctx.stroke();
@@ -1223,12 +1156,9 @@ Math.PI*2
 ctx.fill();
 
 
-/* TENNISLINJER */
-
 ctx.strokeStyle="white";
 
 ctx.lineWidth=2;
-
 
 ctx.beginPath();
 
@@ -1241,7 +1171,6 @@ Math.PI/2
 );
 
 ctx.stroke();
-
 
 ctx.beginPath();
 
@@ -1265,15 +1194,8 @@ ctx.stroke();
 function drawFlyingBird(fb){
 
 const x=fb.x;
-
 const y=fb.y;
-
 const s=fb.size;
-
-
-/*
-Vingernes bevægelse
-*/
 
 const wing=
 Math.sin(fb.wingTime*12)*4;
@@ -1355,7 +1277,6 @@ Math.PI*2
 
 ctx.fill();
 
-
 ctx.fillStyle="#111";
 
 ctx.beginPath();
@@ -1424,7 +1345,7 @@ ctx.fill();
 
 
 /* =========================
-   TEGN SPILLET
+   TEGN SPIL
 ========================= */
 
 function draw(){
@@ -1433,12 +1354,8 @@ function draw(){
 
 let sky=
 ctx.createLinearGradient(
-0,
-0,
-0,
-H
+0,0,0,H
 );
-
 
 sky.addColorStop(
 0,
@@ -1455,15 +1372,10 @@ sky.addColorStop(
 "#d8f5ff"
 );
 
-
 ctx.fillStyle=sky;
 
-
 ctx.fillRect(
-0,
-0,
-W,
-H
+0,0,W,H
 );
 
 
@@ -1502,9 +1414,7 @@ drawPipe(p);
 }
 
 
-/* =========================
-   RØDE + TENNISBOLDE
-========================= */
+/* BOLDE */
 
 for(let ball of balls){
 
@@ -1523,9 +1433,7 @@ drawTennisBall(ball);
 }
 
 
-/* =========================
-   FLYVENDE FUGLE
-========================= */
+/* FLYVENDE FUGLE */
 
 for(let fb of flyingBirds){
 
@@ -1583,16 +1491,13 @@ ctx.shadowBlur=4;
 
 ctx.shadowOffsetY=2;
 
-
 ctx.fillText(
 score,
 W/2,
 55
 );
 
-
 ctx.shadowBlur=0;
-
 ctx.shadowOffsetY=0;
 
 }
@@ -1607,13 +1512,11 @@ function loop(time){
 let dt=
 (time-lastTime)/1000;
 
-
 if(dt>0.035){
 
 dt=0.035;
 
 }
-
 
 lastTime=time;
 
@@ -1633,13 +1536,10 @@ requestAnimationFrame(loop);
 bird={
 
 x:W*.23,
-
 y:H*.45,
-
 velocity:0
 
 };
-
 
 requestAnimationFrame(loop);
 
