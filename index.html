@@ -6,6 +6,7 @@
 <title>Crazy Flyer</title>
 
 <style>
+
 *{
 box-sizing:border-box
 }
@@ -82,6 +83,7 @@ font-weight:bold;
 text-shadow:0 2px 4px #555;
 pointer-events:none
 }
+
 </style>
 </head>
 
@@ -94,29 +96,41 @@ pointer-events:none
 <div id="speedLabel">HASTIGHED</div>
 
 <div id="speed">
+
 <button class="speedBtn" data-speed="1">1</button>
+
 <button class="speedBtn" data-speed="2">2</button>
+
 <button class="speedBtn selected" data-speed="3">3</button>
+
 <button class="speedBtn" data-speed="4">4</button>
+
 <button class="speedBtn" data-speed="5">5</button>
+
 </div>
+
 
 <script>
 
 const canvas=document.getElementById("game");
+
 const ctx=canvas.getContext("2d");
 
 const message=document.getElementById("message");
+
 const speedBox=document.getElementById("speed");
+
 const speedLabel=document.getElementById("speedLabel");
 
 const buttons=document.querySelectorAll(".speedBtn");
+
 
 let W,H;
 
 let bird;
 
 let pipes=[];
+
 let balls=[];
 
 let score=0;
@@ -137,11 +151,13 @@ let speedLevel=3;
 ========================= */
 
 const speedValues={
+
 1:130,
 2:165,
 3:200,
 4:235,
 5:270
+
 };
 
 
@@ -150,11 +166,13 @@ const speedValues={
 ========================= */
 
 const gapValues={
+
 1:260,
 2:240,
 3:220,
 4:200,
 5:180
+
 };
 
 
@@ -165,20 +183,25 @@ const gapValues={
 function resize(){
 
 W=window.innerWidth;
+
 H=window.innerHeight;
 
 canvas.width=W;
+
 canvas.height=H;
 
 }
 
-window.addEventListener("resize",resize);
+window.addEventListener(
+"resize",
+resize
+);
 
 resize();
 
 
 /* =========================
-   HASTIGHEDSVALG
+   VÆLG HASTIGHED
 ========================= */
 
 function selectSpeed(level){
@@ -188,8 +211,11 @@ speedLevel=level;
 buttons.forEach(button=>{
 
 button.classList.toggle(
+
 "selected",
+
 Number(button.dataset.speed)===level
+
 );
 
 });
@@ -199,7 +225,9 @@ Number(button.dataset.speed)===level
 
 buttons.forEach(button=>{
 
-button.addEventListener("pointerdown",function(e){
+button.addEventListener(
+"pointerdown",
+function(e){
 
 e.preventDefault();
 
@@ -209,7 +237,8 @@ selectSpeed(
 Number(button.dataset.speed)
 );
 
-});
+}
+);
 
 });
 
@@ -221,9 +250,13 @@ Number(button.dataset.speed)
 function startGame(){
 
 bird={
+
 x:W*0.23,
+
 y:H*0.45,
+
 velocity:0
+
 };
 
 pipes=[];
@@ -272,7 +305,9 @@ window.addEventListener(
 "pointerdown",
 function(e){
 
-if(e.target.classList.contains("speedBtn")){
+if(
+e.target.classList.contains("speedBtn")
+){
 
 return;
 
@@ -291,7 +326,9 @@ window.addEventListener(
 "touchstart",
 function(e){
 
-if(e.target.classList.contains("speedBtn")){
+if(
+e.target.classList.contains("speedBtn")
+){
 
 return;
 
@@ -364,16 +401,22 @@ pipeCount++;
 
 
 /*
-BOLD PÅ HVER ANDEN STOLPE
+=================================
+RØD BOLD
 
 NIVEAU 3, 4 OG 5
+
+HVER ANDEN STOLPE
+
+BOLDEN STARTER MIDT PÅ SKÆRMEN
+=================================
 */
 
 if(
 
 (speedLevel===3 ||
- speedLevel===4 ||
- speedLevel===5)
+speedLevel===4 ||
+speedLevel===5)
 
 &&
 
@@ -381,58 +424,11 @@ pipeCount%2===0
 
 ){
 
-/*
-BOLDEN PLACERES MIDT
-MELLEM STOLPE-PARRRENE.
-
-Den får sin egen x-position
-og falder derefter lodret.
-*/
-
-const pipeSpeed=speedValues[speedLevel];
-
-let pipeInterval=1.5;
-
-if(speedLevel===4){
-
-pipeInterval=1.25;
-
-}
-
-if(speedLevel===5){
-
-pipeInterval=1.05;
-
-}
-
-
-/*
-Afstanden som bolden skal placeres
-fra den aktuelle stolpe.
-
-Vi beregner hvor næste stolpe
-forventes at komme.
-*/
-
-const horizontalDistance=
-pipeSpeed*pipeInterval;
-
-
-/*
-Midt mellem stolperne
-*/
-
-const ballX=
-pipe.x+
-pipe.width+
-(horizontalDistance/2);
-
-
 balls.push({
 
-x:ballX,
+x:W*0.50,
 
-y:-20,
+y:-15,
 
 radius:14
 
@@ -452,6 +448,7 @@ function endGame(){
 playing=false;
 
 message.innerHTML=
+
 "GAME OVER<br><span style='font-size:17px'>TRYK FOR AT PRØVE IGEN</span>";
 
 message.style.display="flex";
@@ -493,17 +490,24 @@ pipeTimer+=dt;
 
 let pipeInterval=1.5;
 
+
+/* Niveau 4 */
+
 if(speedLevel===4){
 
 pipeInterval=1.25;
 
 }
 
+
+/* Niveau 5 */
+
 if(speedLevel===5){
 
 pipeInterval=1.05;
 
 }
+
 
 if(pipeTimer>pipeInterval){
 
@@ -530,8 +534,11 @@ p.x-=pipeSpeed*dt;
 /* SCORE */
 
 if(
+
 !p.passed &&
+
 p.x+p.width<bird.x
+
 ){
 
 p.passed=true;
@@ -573,15 +580,15 @@ endGame();
 for(let ball of balls){
 
 /*
-BOLDEN FALDER LODRET.
+BOLDEN FALDER KUN LODRET.
 
-X ÆNDRES IKKE.
+X ÆNDRES ALDRIG.
 */
 
 ball.y+=320*dt;
 
 
-/* KOLLISION */
+/* KOLLISION MED BOLD */
 
 const dx=
 bird.x-ball.x;
@@ -597,8 +604,10 @@ dy*dy
 
 
 if(
+
 distance<
 17+ball.radius
+
 ){
 
 endGame();
@@ -613,16 +622,20 @@ endGame();
 ========================= */
 
 pipes=pipes.filter(
+
 p=>p.x+p.width>0
+
 );
 
 
 /* =========================
-   FJERN BOLDE
+   FJERN GAMLE BOLDE
 ========================= */
 
 balls=balls.filter(
+
 ball=>ball.y-ball.radius<H
+
 );
 
 
@@ -685,6 +698,7 @@ ctx.fillStyle=
 
 ctx.beginPath();
 
+
 ctx.arc(
 x,
 y,
@@ -692,6 +706,7 @@ size*.55,
 0,
 Math.PI*2
 );
+
 
 ctx.arc(
 x+size*.55,
@@ -701,6 +716,7 @@ size*.7,
 Math.PI*2
 );
 
+
 ctx.arc(
 x+size*1.15,
 y,
@@ -708,6 +724,7 @@ size*.5,
 0,
 Math.PI*2
 );
+
 
 ctx.fill();
 
@@ -782,6 +799,7 @@ function drawBushes(){
 
 ctx.fillStyle="#48b84f";
 
+
 for(
 let x=0;
 x<W;
@@ -833,7 +851,7 @@ p.top
 );
 
 
-/* ØVERSTE HÆTTE */
+/* ØVERSTE AFRUNDEDE HÆTTE */
 
 roundedRect(
 
@@ -867,7 +885,7 @@ H-(p.top+p.gap)-45
 );
 
 
-/* NEDERSTE HÆTTE */
+/* NEDERSTE AFRUNDEDE HÆTTE */
 
 roundedRect(
 
@@ -954,6 +972,7 @@ ctx.fill();
 
 ctx.fillStyle="#111";
 
+
 ctx.beginPath();
 
 ctx.arc(
@@ -1024,6 +1043,7 @@ ctx.strokeStyle="#111";
 
 ctx.lineWidth=2.5;
 
+
 ctx.beginPath();
 
 ctx.moveTo(
@@ -1072,22 +1092,27 @@ ctx.createLinearGradient(
 H
 );
 
+
 sky.addColorStop(
 0,
 "#31a9e8"
 );
+
 
 sky.addColorStop(
 0.65,
 "#74d0f2"
 );
 
+
 sky.addColorStop(
 1,
 "#d8f5ff"
 );
 
+
 ctx.fillStyle=sky;
+
 
 ctx.fillRect(
 0,
@@ -1105,11 +1130,13 @@ H*.27,
 45
 );
 
+
 drawCloud(
 W*.78,
 H*.34,
 55
 );
+
 
 drawCloud(
 W*.42,
@@ -1140,6 +1167,7 @@ for(let ball of balls){
 
 ctx.fillStyle="#e53935";
 
+
 ctx.beginPath();
 
 ctx.arc(
@@ -1164,6 +1192,7 @@ drawBushes();
 
 ctx.fillStyle="#65b34a";
 
+
 ctx.fillRect(
 0,
 H-35,
@@ -1176,6 +1205,7 @@ W,
 
 ctx.fillStyle="#3d963c";
 
+
 ctx.fillRect(
 0,
 H-38,
@@ -1184,7 +1214,7 @@ W,
 );
 
 
-/* EMOJI */
+/* CRAZY EMOJI */
 
 drawBird();
 
@@ -1204,11 +1234,13 @@ ctx.shadowBlur=4;
 
 ctx.shadowOffsetY=2;
 
+
 ctx.fillText(
 score,
 W/2,
 55
 );
+
 
 ctx.shadowBlur=0;
 
@@ -1226,11 +1258,13 @@ function loop(time){
 let dt=
 (time-lastTime)/1000;
 
+
 if(dt>0.035){
 
 dt=0.035;
 
 }
+
 
 lastTime=time;
 
@@ -1244,7 +1278,7 @@ requestAnimationFrame(loop);
 
 
 /* =========================
-   START
+   INITIALISERING
 ========================= */
 
 bird={
